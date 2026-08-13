@@ -1,0 +1,638 @@
+
+/* ========================================
+   KAIVAN STONE — CSS STYLESHEET
+   ======================================== */
+
+/* 1. CSS Variables — Design System */
+
+:root {
+    --cream: #f5f1e8;
+    --stone: #d8d1c4;
+    --dark: #1d1d1b;
+    --white: #ffffff;
+    --muted: #6f6b64;
+}
+
+/* Universal Selector */
+
+* {
+    box-sizing: border-box;
+}
+
+/* 2. Body */
+
+body {
+    margin: 0;
+    background-color: var(--cream);
+    color: var(--dark);
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+/* Typography System */
+
+h1,
+h2,
+h3,
+p {
+    margin-top: 0;
+}
+
+h1 {
+    font-size: clamp(56px, 8vw, 110px);
+    line-height: 0.95;
+    letter-spacing: -4px;
+}
+
+h2 {
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: -2px;
+}
+
+h3 {
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+p {
+    line-height: 1.6;
+}
+
+/* 3. Header & Navigation */
+
+header {
+    padding: 24px 6%;
+    position: relative;
+    z-index: 10;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav > a {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+nav div {
+    display: flex;
+    gap: 30px;
+}
+
+nav a {
+    color: var(--dark);
+    text-decoration: none;
+}
+
+nav div a:hover {
+    opacity: 0.6;
+}
+
+/* Mobile Menu Button */
+
+#menu-button {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--dark);
+    padding: 0;
+}
+
+/* Nav Links */
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+}
+
+/* 4. Hero Section */
+
+#hero {
+    position: relative;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 6%;
+    background-image: url("images/hero.jpg");
+    background-size: cover;
+    background-position: center;
+    color: var(--white);
+}
+
+#hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+#hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+#hero p:first-child {
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 13px;
+    color: var(--white);
+    opacity: 0.9;
+}
+
+#hero h1 {
+    max-width: 850px;
+    margin: 20px 0;
+    font-size: clamp(56px, 8vw, 110px);
+    line-height: 0.95;
+    letter-spacing: -4px;
+    color: var(--white);
+}
+
+#hero p:nth-of-type(2) {
+    max-width: 600px;
+    font-size: 20px;
+    color: var(--white);
+    opacity: 0.95;
+}
+
+/* 4a. Hero Buttons */
+
+#hero a,
+form button {
+    transition:
+        transform 0.25s ease,
+        background-color 0.25s ease,
+        color 0.25s ease,
+        opacity 0.25s ease;
+}
+
+#hero a {
+    display: inline-block;
+    padding: 14px 24px;
+    margin-right: 10px;
+    margin-top: 20px;
+    background-color: var(--white);
+    color: var(--dark);
+    text-decoration: none;
+}
+
+#hero a:hover {
+    transform: translateY(-3px);
+}
+
+#hero a:last-of-type {
+    background-color: transparent;
+    color: var(--white);
+    border: 1px solid var(--white);
+}
+
+/* 5. Section Headings & Spacing */
+
+.section-heading {
+    max-width: 750px;
+    margin-bottom: 60px;
+}
+
+.section-heading p:first-child {
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.section-heading h2 {
+    margin-bottom: 20px;
+}
+
+section {
+    padding: 120px 6%;
+}
+
+/* 6. Collection Section */
+
+#collection {
+    padding: 100px 6%;
+}
+
+#collection > div {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+/* 6a. Stone Cards */
+
+#collection article {
+    background: var(--white);
+    overflow: hidden;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+#collection article:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+#collection article img {
+    width: 100%;
+    height: 340px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s ease;
+}
+
+#collection article:hover img {
+    transform: scale(1.04);
+}
+
+#collection article h3 {
+    padding: 22px;
+    margin: 0;
+}
+
+/* Stone Buttons */
+
+.stone-button {
+    width: calc(100% - 44px);
+    margin: 0 22px 22px 22px;
+    padding: 12px 20px;
+    background-color: var(--dark);
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.stone-button:hover:not(:disabled) {
+    background-color: var(--muted);
+    transform: translateY(-2px);
+}
+
+.stone-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Stone Price */
+
+.stone-price {
+    padding: 0 22px;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #d9534f;
+}
+
+/* Stone Stock Status */
+
+.stone-stock {
+    display: inline-block;
+    margin: 0 22px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.in-stock {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.out-of-stock {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Stone Info Display */
+
+#stone-info {
+    margin-top: 60px;
+    padding: 40px;
+    background-color: var(--white);
+    border-radius: 8px;
+}
+
+#stone-info h3 {
+    margin-top: 0;
+    font-size: 28px;
+}
+
+#stone-info p {
+    color: var(--muted);
+    font-size: 16px;
+}
+
+/* Stone Detail View */
+
+.stone-detail {
+    display: flex;
+    flex-direction: column;
+}
+
+.stone-desc {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 30px;
+    line-height: 1.8;
+}
+
+.stone-meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.stone-meta p {
+    margin: 0;
+    padding: 12px;
+    background-color: var(--cream);
+    border-radius: 4px;
+}
+
+.stone-meta strong {
+    color: var(--dark);
+    font-weight: 600;
+}
+
+/* Certification Badges */
+
+.cert-badge {
+    display: inline-block;
+    margin: 4px 4px 4px 0;
+    padding: 6px 12px;
+    background-color: #e8f4f8;
+    color: #0c5460;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* 7. About Section (Complete Control) */
+
+#about {
+    background-color: var(--stone);
+}
+
+.section-heading {
+    max-width: 700px;
+    margin-bottom: 50px;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.about-grid article {
+    padding: 35px;
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.about-grid article h3 {
+    margin-top: 0;
+}
+
+/* 8. Logistics Section */
+
+.logistics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.logistics-grid article {
+    padding: 35px 0;
+    border-top: 1px solid var(--dark);
+}
+
+.logistics-grid article h3 {
+    margin: 10px 0;
+}
+
+.logistics-grid article h3:first-child {
+    font-size: 28px;
+    color: var(--muted);
+}
+
+/* 9. Statistics Section */
+
+#stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    padding: 100px 6%;
+    background: var(--stone);
+    text-align: center;
+}
+
+#stats div {
+    padding: 20px;
+}
+
+#stats strong {
+    display: block;
+    font-size: clamp(48px, 6vw, 80px);
+    line-height: 1;
+}
+
+#stats span {
+    display: block;
+    margin-top: 15px;
+    color: var(--muted);
+}
+
+/* 10. Contact Section */
+
+#contact {
+    padding: 120px 6%;
+    background: var(--dark);
+    color: var(--white);
+}
+
+#contact p {
+    color: #c9c5bd;
+}
+
+#contact form {
+    margin-top: 50px;
+    max-width: 650px;
+}
+
+#contact form label {
+    display: block;
+    margin-top: 20px;
+    font-weight: 600;
+    color: var(--white);
+}
+
+/* Form Message Display */
+
+#form-message {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 4px;
+    font-weight: 600;
+    min-height: 20px;
+}
+
+#form-message:empty {
+    display: none;
+}
+
+#contact form input,
+#contact form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 8px;
+    padding: 15px;
+    border: 1px solid #555;
+    background: transparent;
+    color: var(--white);
+    font: inherit;
+}
+
+#contact form input::placeholder,
+#contact form textarea::placeholder {
+    color: #888;
+}
+
+#contact form input:focus,
+#contact form textarea:focus {
+    outline: 2px solid #aaa;
+}
+
+#contact form textarea {
+    min-height: 160px;
+    resize: vertical;
+}
+
+form button {
+    margin-top: 25px;
+    padding: 15px 28px;
+    border: none;
+    background-color: var(--white);
+    color: var(--dark);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+form button:hover {
+    transform: translateY(-3px);
+    opacity: 0.85;
+}
+
+/* 11. Footer */
+
+footer {
+    padding: 50px 6%;
+    background: #111;
+    color: white;
+}
+
+footer h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+footer p {
+    margin: 10px 0;
+    color: #aaa;
+}
+
+/* 12. Responsive Design — Mobile */
+
+@media (max-width: 768px) {
+
+    header {
+        padding: 20px;
+    }
+
+    nav {
+        flex-direction: row;
+        align-items: center;
+        gap: 0;
+    }
+
+    #menu-button {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: var(--white);
+        border-bottom: 1px solid #eee;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links a {
+        padding: 12px 0;
+    }
+
+    section {
+        padding: 80px 20px;
+    }
+
+    #hero {
+        min-height: 75vh;
+        padding: 60px 20px;
+    }
+
+    #hero h1 {
+        font-size: 52px;
+        letter-spacing: -2px;
+    }
+
+    #hero p:nth-of-type(2) {
+        font-size: 17px;
+    }
+
+    #hero a {
+        margin-right: 5px;
+        margin-bottom: 10px;
+    }
+
+    #collection > div,
+    .about-grid,
+    .logistics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #collection article img {
+        height: 280px;
+    }
+
+    #stats {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 70px 20px;
+    }
+
+}
