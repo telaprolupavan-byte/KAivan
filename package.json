@@ -1,0 +1,24 @@
+{
+  "name": "kaivan",
+  "version": "1.0.0",
+  "description": "**Tagline:** Earth to Excellence 🪨",
+  "main": "script.js",
+  "scripts": {
+  "start": "node server/server.js"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/telaprolupavan-byte/KAivan.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/telaprolupavan-byte/KAivan/issues"
+  },
+  "homepage": "https://github.com/telaprolupavan-byte/KAivan#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
