@@ -191,11 +191,11 @@ function setupSmoothScroll() {
 
 function extractFormValues() {
     return {
-        name: document.getElementById("name").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        company: document.getElementById("company").value.trim(),
-        phone: document.getElementById("phone").value.trim(),
-        message: document.getElementById("message").value.trim()
+        name: getElement("name").value.trim(),
+        email: getElement("email").value.trim(),
+        company: getElement("company").value.trim(),
+        phone: getElement("phone").value.trim(),
+        message: getElement("message").value.trim()
     };
 }
 
@@ -602,7 +602,6 @@ document.addEventListener("DOMContentLoaded", function () {
     setupSmoothScroll();
     initFormValidation();
     generateStoneCollection();
-    
     console.log("\n✨ Website fully initialized!\n");
     console.log("📚 Learning Phases Implemented:");
     console.log("  Step 5 - Functions ✓");
