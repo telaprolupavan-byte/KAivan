@@ -1,9 +1,12 @@
 const express = require("express");
+const path = require("path");
 const stones = require("./data/stones");
 
 const app = express();
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+app.use(express.static(path.join(__dirname, "..")));
 
 app.get("/api/health", (req, res) => {
     res.json({
@@ -24,6 +27,10 @@ app.get("/api/stones/:id", (req, res) => {
     }
 
     res.json(stone);
+});
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "index.html"));
 });
 
 app.listen(PORT, () => {
