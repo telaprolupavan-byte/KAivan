@@ -261,6 +261,14 @@ section {
     margin: 0;
 }
 
+.collection-status {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 24px;
+    background: var(--white);
+    color: var(--muted);
+}
+
 /* Stone Buttons */
 
 .stone-button {

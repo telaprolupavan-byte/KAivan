@@ -29,108 +29,7 @@ function queryElements(selector) {
    Rich data structure with descriptions, properties, and metadata
    ======================================== */
 
-const stones = {
-    "steel-grey": {
-        name: "Steel Grey",
-        description: "A sophisticated dark granite with subtle grey tones.",
-        origin: "India",
-        price: "$45/sq ft",
-        dimensions: "12x12 tiles",
-        rating: 4.8,
-        certifications: ["ISO 9001", "Green Certified"],
-        inStock: true
-    },
-    "black-pearl": {
-        name: "Black Pearl",
-        description: "A striking jet-black granite with luminous sparkle effects.",
-        origin: "India",
-        price: "$52/sq ft",
-        dimensions: "12x12 tiles",
-        rating: 4.9,
-        certifications: ["ISO 9001"],
-        inStock: true
-    },
-    "vision-white": {
-        name: "Vision White",
-        description: "A pristine white granite ideal for contemporary designs.",
-        origin: "India",
-        price: "$48/sq ft",
-        dimensions: "12x12 tiles",
-        rating: 4.7,
-        certifications: ["ISO 9001", "Green Certified"],
-        inStock: true
-    },
-    "moon-white": {
-        name: "Moon White",
-        description: "An elegant pearl-white granite with subtle mineral patterns.",
-        origin: "India",
-        price: "$50/sq ft",
-        dimensions: "12x12 tiles",
-        rating: 4.8,
-        certifications: ["ISO 9001"],
-        inStock: true
-    },
-    "black-galaxy": {
-        name: "Black Galaxy",
-        description: "A dramatic black granite with golden star-like inclusions.",
-        origin: "India",
-        price: "$58/sq ft",
-        dimensions: "12x12 tiles",
-        rating: 4.9,
-        certifications: ["ISO 9001", "Sustainable Sourced"],
-        inStock: true
-    },
-    "burgundy": {
-        name: "Burgundy",
-        description: "A warm burgundy-toned granite perfect for luxury interiors.",
-        origin: "India",
-        price: "$55/sq ft",
-        dimensions: "12x12 tiles",
-        rating: 4.6,
-        certifications: ["ISO 9001"],
-        inStock: false
-    },
-    "jasmine-white": {
-        name: "Jasmine White",
-        description: "A bright and clean white granite with fine grain texture.",
-        origin: "India",
-        price: "$46/sq ft",
-        dimensions: "12x12 tiles",
-        rating: 4.7,
-        certifications: ["Green Certified"],
-        inStock: true
-    },
-    "mint-pearl": {
-        name: "Mint Pearl",
-        description: "A soft mint-toned granite for subtle, sophisticated spaces.",
-        origin: "India",
-        price: "$49/sq ft",
-        dimensions: "12x12 tiles",
-        rating: 4.5,
-        certifications: ["ISO 9001"],
-        inStock: true
-    },
-    "sil-red": {
-        name: "Sil Red",
-        description: "A vibrant red granite with intricate mineral formations.",
-        origin: "India",
-        price: "$56/sq ft",
-        dimensions: "12x12 tiles",
-        rating: 4.7,
-        certifications: ["Sustainable Sourced"],
-        inStock: true
-    },
-    "black": {
-        name: "Black",
-        description: "A classic pure black granite, versatile and timeless.",
-        origin: "India",
-        price: "$44/sq ft",
-        dimensions: "12x12 tiles",
-        rating: 4.9,
-        certifications: ["ISO 9001", "Green Certified"],
-        inStock: true
-    }
-};
+let stones = {};
 
 /* ========================================
    STEP 5: FUNCTIONS - Mobile Menu Management
@@ -316,10 +215,11 @@ function createStoneCard(stone) {
     const stockStatus = stone.inStock ? "In Stock" : "Out of Stock";
     const stockClass = stone.inStock ? "in-stock" : "out-of-stock";
     
+    const imageSrc = stone.image || `images/${stone.id}.jpg`;
     article.innerHTML = `
-        <img src="${stone.image}" alt="${stone.name} granite" loading="lazy">
+        <img src="${imageSrc}" alt="${stone.name} granite" loading="lazy" onerror="this.src='images/hero.jpg'">
         <h3>${stone.name}</h3>
-        <p class="stone-price">${stone.price}</p>
+        <p class="stone-price">${stone.price || "Contact for pricing"}</p>
         <span class="stone-stock ${stockClass}">${stockStatus}</span>
         <button class="stone-button" data-stone="${stone.id}" ${!stone.inStock ? 'disabled' : ''}>View Stone</button>
     `;
@@ -337,8 +237,20 @@ function displayStoneInfo(stoneId) {
     const stoneInfo = getElement("stone-info");
     if (!stoneInfo) return;
     
-    const ratingStars = "⭐".repeat(Math.round(stone.rating));
-    const certBadges = stone.certifications.map(cert => `<span class="cert-badge">${cert}</span>`).join("");
+    const ratingStars = typeof stone.rating === "number" ? "⭐".repeat(Math.round(stone.rating)) : "";
+    const certBadges = Array.isArray(stone.certifications)
+        ? stone.certifications.map(cert => `<span class="cert-badge">${cert}</span>`).join("")
+        : "";
+    const details = [
+        stone.price ? `<p><strong>Price:</strong> ${stone.price}</p>` : "",
+        stone.origin ? `<p><strong>Origin:</strong> ${stone.origin}</p>` : "",
+        stone.color ? `<p><strong>Color:</strong> ${stone.color}</p>` : "",
+        stone.finish ? `<p><strong>Finish:</strong> ${stone.finish}</p>` : "",
+        stone.dimensions ? `<p><strong>Size:</strong> ${stone.dimensions}</p>` : "",
+        ratingStars ? `<p><strong>Rating:</strong> ${ratingStars} (${stone.rating}/5)</p>` : "",
+        certBadges ? `<p><strong>Certifications:</strong> ${certBadges}</p>` : "",
+        `<p><strong>Stock:</strong> ${stone.inStock ? "✓ Available" : "✗ Coming Soon"}</p>`
+    ].filter(Boolean).join("");
     
     stoneInfo.innerHTML = `
         <div class="stone-detail">
@@ -346,12 +258,7 @@ function displayStoneInfo(stoneId) {
             <p class="stone-desc">${stone.description}</p>
             
             <div class="stone-meta">
-                <p><strong>Price:</strong> ${stone.price}</p>
-                <p><strong>Origin:</strong> ${stone.origin}</p>
-                <p><strong>Size:</strong> ${stone.dimensions}</p>
-                <p><strong>Rating:</strong> ${ratingStars} (${stone.rating}/5)</p>
-                <p><strong>Certifications:</strong> ${certBadges || "None"}</p>
-                <p><strong>Stock:</strong> ${stone.inStock ? "✓ Available" : "✗ Coming Soon"}</p>
+                ${details}
             </div>
         </div>
     `;
@@ -371,153 +278,136 @@ function attachStoneButtonListeners() {
 }
 
 /* ========================================
-   STEP 6: DOM MANIPULATION & STEP 4: DYNAMIC GENERATION
-   Generate HTML from data arrays
+   STEP 6: DOM MANIPULATION & STEP 10: REAL API FETCH
    ======================================== */
 
-const stoneCollection = [
-    { name: "Steel Grey", image: "images/steel-grey.jpg", id: "steel-grey" },
-    { name: "Black Pearl", image: "images/black-pearl.jpg", id: "black-pearl" },
-    { name: "Vision White", image: "images/vision-white.jpg", id: "vision-white" },
-    { name: "Moon White", image: "images/moon-white.jpg", id: "moon-white" },
-    { name: "Black Galaxy", image: "images/black-galaxy.jpg", id: "black-galaxy" },
-    { name: "Burgundy", image: "images/burgundy.jpg", id: "burgundy" },
-    { name: "Jasmine White", image: "images/jasmine-white.jpg", id: "jasmine-white" },
-    { name: "Mint Pearl", image: "images/mint-pearl.jpg", id: "mint-pearl" },
-    { name: "Sil Red", image: "images/sil-red.jpg", id: "sil-red" },
-    { name: "Black", image: "images/black.jpg", id: "black" }
-];
-
-function generateStoneCollection() {
+function renderCollectionMessage(message) {
     const collectionGrid = getElement("collection-grid");
-    if (!collectionGrid) return;
-    
-    collectionGrid.innerHTML = ""; // Clear existing
-    
-    // Loop: Generate cards from array data
-    stoneCollection.forEach(function (stoneData) {
-        const stone = stones[stoneData.id];
-        if (stone) {
-            stone.image = stoneData.image; // Add image to stone object
-            const article = createStoneCard(stone);
-            collectionGrid.appendChild(article);
-        }
+    if (!collectionGrid) {
+        return;
+    }
+    collectionGrid.innerHTML = `<p class="collection-status">${message}</p>`;
+}
+
+function normalizeStonesResponse(payload) {
+    if (!payload || typeof payload !== "object") {
+        throw new Error("Stone API returned an invalid response.");
+    }
+
+    if (Array.isArray(payload)) {
+        return payload.map((stone, index) => ({
+            ...stone,
+            id: stone.id || `stone-${index + 1}`
+        }));
+    }
+
+    return Object.entries(payload).map(([id, stone]) => ({
+        ...stone,
+        id: stone.id || id
+    }));
+}
+
+function generateStoneCollection(stoneList) {
+    const collectionGrid = getElement("collection-grid");
+    if (!collectionGrid) {
+        return;
+    }
+
+    collectionGrid.innerHTML = "";
+    stoneList.forEach(function (stone) {
+        const article = createStoneCard(stone);
+        collectionGrid.appendChild(article);
     });
-    
-    console.log(`✓ Generated ${stoneCollection.length} stone cards`);
-    
-    // Attach listeners to newly created buttons
+
+    console.log(`✓ Generated ${stoneList.length} stone cards`);
     attachStoneButtonListeners();
 }
 
-/* ========================================
-   STEP 11: JSON & STEP 12: ASYNC/STORAGE
-   Working with JSON data format and local storage
-   ======================================== */
+function resetStoneInfo() {
+    const stoneInfo = getElement("stone-info");
+    if (!stoneInfo) {
+        return;
+    }
+    stoneInfo.innerHTML = `
+        <h3>Select a stone</h3>
+        <p>Choose a stone above to learn more.</p>
+    `;
+}
+
+async function loadStonesAsync() {
+    renderCollectionMessage("Loading stones...");
+
+    try {
+        const response = await fetch("/api/stones");
+        if (!response.ok) {
+            throw new Error(`Stone API request failed with status ${response.status}`);
+        }
+
+        const payload = await response.json();
+        const stoneList = normalizeStonesResponse(payload);
+
+        if (stoneList.length === 0) {
+            renderCollectionMessage("No stones available at this time.");
+            resetStoneInfo();
+            return [];
+        }
+
+        stones = stoneList.reduce((catalog, stone) => {
+            catalog[stone.id] = stone;
+            return catalog;
+        }, {});
+        generateStoneCollection(stoneList);
+        return stoneList;
+    } catch (error) {
+        console.error("Unable to load stones from API:", error);
+        renderCollectionMessage("Unable to load stones. Please try again later.");
+        resetStoneInfo();
+        return [];
+    }
+}
 
 function stoneToJSON(stoneId) {
     const stone = stones[stoneId];
+    if (!stone) {
+        return null;
+    }
     return JSON.stringify(stone, null, 2);
 }
 
 function saveStoneToLocalStorage(stoneId) {
-    try {
-        const stone = stones[stoneId];
-        localStorage.setItem(`stone_${stoneId}`, JSON.stringify(stone));
-        console.log(`✓ Saved ${stone.name} to localStorage`);
-        return true;
-    } catch (e) {
-        console.error("Failed to save to localStorage:", e);
+    const stone = stones[stoneId];
+    if (!stone) {
+        console.warn(`Stone "${stoneId}" not found`);
         return false;
     }
+    localStorage.setItem(`stone_${stoneId}`, JSON.stringify(stone));
+    console.log(`✓ Saved ${stone.name} to localStorage`);
+    return true;
 }
 
 function getStoneFromLocalStorage(stoneId) {
-    try {
-        const data = localStorage.getItem(`stone_${stoneId}`);
-        if (data) {
-            const stone = JSON.parse(data);
-            console.log(`✓ Loaded ${stone.name} from localStorage`);
-            return stone;
-        }
-    } catch (e) {
-        console.error("Failed to load from localStorage:", e);
+    const data = localStorage.getItem(`stone_${stoneId}`);
+    if (!data) {
+        return null;
     }
-    return null;
-}
-
-/* ========================================
-   STEP 10 & 12: FETCH & ASYNC/PROMISES
-   Simulating API calls with async functions and Promises
-   ======================================== */
-
-// Mock API function - simulates fetching stones from backend
-function mockFetchStones() {
-    return new Promise((resolve) => {
-        // Simulate network delay (2 seconds)
-        setTimeout(() => {
-            resolve({
-                status: 200,
-                data: stoneCollection,
-                message: "Stones loaded from API"
-            });
-        }, 2000);
-    });
-}
-
-// Async/await version of API call
-async function loadStonesAsync() {
-    try {
-        console.log("⏳ Loading stones from API...");
-        const response = await mockFetchStones();
-        
-        if (response.status === 200) {
-            console.log(`✓ ${response.message}`);
-            console.log(`Loaded ${response.data.length} stones`);
-            return response.data;
-        }
-    } catch (error) {
-        console.error("❌ Error loading stones:", error);
-    }
-}
-
-// Promise .then() version (older pattern, but still used)
-function loadStonesWithThen() {
-    console.log("⏳ Loading stones with .then()...");
-    return mockFetchStones()
-        .then(response => {
-            if (response.status === 200) {
-                console.log(`✓ ${response.message}`);
-                return response.data;
-            }
-        })
-        .catch(error => {
-            console.error("❌ Error:", error);
-        });
-}
-
-// Simulate API for single stone
-function mockFetchStone(stoneId) {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            if (stones[stoneId]) {
-                resolve(stones[stoneId]);
-            } else {
-                reject(new Error(`Stone "${stoneId}" not found`));
-            }
-        }, 800);
-    });
+    const stone = JSON.parse(data);
+    console.log(`✓ Loaded ${stone.name} from localStorage`);
+    return stone;
 }
 
 async function loadStoneAsync(stoneId) {
-    try {
-        console.log(`⏳ Fetching ${stoneId}...`);
-        const stone = await mockFetchStone(stoneId);
-        console.log(`✓ Loaded: ${stone.name}`);
-        return stone;
-    } catch (error) {
-        console.error(`❌ Error loading stone:`, error.message);
+    if (stones[stoneId]) {
+        return stones[stoneId];
     }
+
+    const response = await fetch(`/api/stones/${stoneId}`);
+    if (!response.ok) {
+        throw new Error(`Stone "${stoneId}" request failed with status ${response.status}`);
+    }
+
+    const stone = await response.json();
+    stones[stoneId] = { ...stone, id: stoneId };
+    return stones[stoneId];
 }
 
 /* ========================================
@@ -601,7 +491,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initMobileMenu();
     setupSmoothScroll();
     initFormValidation();
-    generateStoneCollection();
+    loadStonesAsync();
     console.log("\n✨ Website fully initialized!\n");
     console.log("📚 Learning Phases Implemented:");
     console.log("  Step 5 - Functions ✓");

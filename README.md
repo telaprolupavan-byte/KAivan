@@ -75,9 +75,12 @@ kaivan/
    code /Users/pavantelaprolu/kaivan
    ```
 
-2. **View in Browser**
-   - Right-click `index.html` → "Open with Live Server" (VS Code extension)
-   - Or open directly: `file:///Users/pavantelaprolu/kaivan/index.html`
+2. **Start Backend + Frontend**
+   ```bash
+   npm install
+   npm start
+   ```
+   Then open `http://localhost:3000` in your browser.
 
 3. **Check Console**
    - Press `F12` → Console tab
@@ -197,10 +200,10 @@ quoteForm.addEventListener("submit", function (event) {
 Try these commands in the browser Console (F12):
 
 ```javascript
-// Step 10 & 12: Async/Promises - Load all stones from mock API
+// Step 10 & 12: Async/Promises - Load all stones from Stone REST API
 await loadStonesAsync()
 
-// Load a single stone
+// Load a single stone from API
 await loadStoneAsync('steel-grey')
 
 // Step 11: JSON - Convert stone to JSON format
@@ -209,9 +212,6 @@ stoneToJSON('black-pearl')
 // Step 11 & 12: Local Storage - Save/load stones
 saveStoneToLocalStorage('vision-white')
 getStoneFromLocalStorage('vision-white')
-
-// Step 10: Promise .then() pattern
-loadStonesWithThen()
 
 // Step 13: Submit a quote to mock backend
 submitQuoteToBackend({
