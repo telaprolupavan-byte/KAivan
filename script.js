@@ -150,48 +150,78 @@ function displayFormMessage(message, isSuccess = true) {
     }
 }
 
-function handleFormSubmit(event) {
+async function handleFormSubmit(event) {
     event.preventDefault();
-    
+
     const formValues = extractFormValues();
-    
+
     // Validate each field
     const nameValidation = validateName(formValues.name);
     if (!nameValidation.valid) {
         displayFormMessage(nameValidation.error, false);
         return;
     }
-    
+
     const emailValidation = validateEmail(formValues.email);
     if (!emailValidation.valid) {
         displayFormMessage(emailValidation.error, false);
         return;
     }
-    
+
     const phoneValidation = validatePhone(formValues.phone);
     if (!phoneValidation.valid) {
         displayFormMessage(phoneValidation.error, false);
         return;
     }
-    
+
     const messageValidation = validateMessage(formValues.message);
     if (!messageValidation.valid) {
         displayFormMessage(messageValidation.error, false);
         return;
     }
-    
-    // All validation passed
+
+    // Show loading message
     displayFormMessage(
-        "Thank you! Your quote request has been received. We'll contact you within 24 hours.",
+        "Submitting your quote request...",
         true
     );
-    
-    // Log form data (in real app, would send to server)
-    console.log("📝 Form submitted:", formValues);
-    
-    // Reset form
-    event.target.reset();
-    setTimeout(() => displayFormMessage("", true), 3000);
+
+    try {
+        const response = await fetch("/api/quotes", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formValues)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Unable to submit quote request.");
+        }
+
+        // Success
+        displayFormMessage(
+            data.message || "Thank you! Your quote request has been received. We'll contact you within 24 hours.",
+            true
+        );
+
+        console.log("📝 Quote request submitted:", data.quote);
+
+        // Reset form
+        event.target.reset();
+
+        setTimeout(() => displayFormMessage("", true), 3000);
+
+    } catch (error) {
+        console.error("❌ Quote request failed:", error);
+
+        displayFormMessage(
+            "Unable to submit your quote request. Please try again later.",
+            false
+        );
+    }
 }
 
 function initFormValidation() {
@@ -203,6 +233,7 @@ function initFormValidation() {
 }
 
 /* ========================================
+
    STEP 5 & 6: FUNCTIONS - Stone Display & DOM Manipulation
    Create and manipulate DOM elements dynamically
    ======================================== */
@@ -453,32 +484,6 @@ async function loadStoneAsync(stoneId) {
    }
    ======================================== */
 
-// Simulated quote submission to "backend"
-async function submitQuoteToBackend(formData) {
-    try {
-        console.log("⏳ Submitting quote to backend...");
-        
-        // Simulate network request
-        const response = await new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    status: 201,
-                    message: "Quote saved successfully",
-                    quoteId: `QUOTE-${Date.now()}`
-                });
-            }, 1500);
-        });
-        
-        if (response.status === 201) {
-            console.log(`✓ ${response.message}`);
-            console.log(`Quote ID: ${response.quoteId}`);
-            console.log("Submitted data:", formData);
-            return response;
-        }
-    } catch (error) {
-        console.error("❌ Failed to submit quote:", error);
-    }
-}
 
 /* ========================================
    INITIALIZATION - Run on Page Load
