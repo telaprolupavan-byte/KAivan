@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const { ObjectId } = require("mongodb");
 const connectToDatabase = require("./DB");
 
 const app = express();
@@ -123,6 +124,36 @@ app.get("/api/quotes", async (req, res) => {
 
         res.status(500).json({
             error: "Failed to fetch quotes"
+        });
+    }
+});
+// Get one quote by ID
+app.get("/api/quotes/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!ObjectId.isValid(id)) {
+            return res.status(400).json({
+                error: "Invalid quote ID"
+            });
+        }
+
+        const quote = await db.collection("quotes").findOne({
+            _id: new ObjectId(id)
+        });
+
+        if (!quote) {
+            return res.status(404).json({
+                error: "Quote not found"
+            });
+        }
+
+        res.json(quote);
+    } catch (error) {
+        console.error("Failed to fetch quote:", error);
+
+        res.status(500).json({
+            error: "Failed to fetch quote"
         });
     }
 });
