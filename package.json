@@ -4,8 +4,8 @@
   "description": "**Tagline:** Earth to Excellence 🪨",
   "main": "script.js",
   "scripts": {
-  "start": "node server/server.js"
-},
+    "start": "node server/server.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/telaprolupavan-byte/KAivan.git"
@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/telaprolupavan-byte/KAivan#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongodb": "^7.6.0"
   }
 }
