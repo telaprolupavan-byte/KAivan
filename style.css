@@ -547,6 +547,58 @@ form button:hover {
     opacity: 0.85;
 }
 
+/* Quote Request Display */
+
+.quote-requests {
+    margin-top: 80px;
+}
+
+.quote-requests > h3 {
+    font-size: 28px;
+    margin-bottom: 24px;
+}
+
+#quote-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.quote-card,
+.quote-status {
+    margin: 0;
+    padding: 24px;
+    background: var(--white);
+    color: var(--dark);
+    border-radius: 4px;
+}
+
+.quote-card h4 {
+    margin: 0 0 18px;
+    font-size: 20px;
+}
+
+.quote-card dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 8px 14px;
+    margin: 0;
+}
+
+.quote-card dt {
+    font-weight: 600;
+}
+
+.quote-card dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.quote-status {
+    grid-column: 1 / -1;
+    color: var(--muted);
+}
+
 /* 11. Footer */
 
 footer {
@@ -629,7 +681,8 @@ footer p {
 
     #collection > div,
     .about-grid,
-    .logistics-grid {
+    .logistics-grid,
+    #quote-list {
         grid-template-columns: 1fr;
     }
 

@@ -30,6 +30,7 @@ function queryElements(selector) {
    ======================================== */
 
 let stones = {};
+let quotes = [];
 
 /* ========================================
    STEP 5: FUNCTIONS - Mobile Menu Management
@@ -211,6 +212,7 @@ async function handleFormSubmit(event) {
 
         // Reset form
         event.target.reset();
+        loadQuotesAsync();
 
         setTimeout(() => displayFormMessage("", true), 3000);
 
@@ -229,6 +231,99 @@ function initFormValidation() {
     if (quoteForm) {
         quoteForm.addEventListener("submit", handleFormSubmit);
         console.log("✓ Form validation initialized");
+    }
+}
+
+function renderQuoteMessage(message) {
+    const quoteList = getElement("quote-list");
+    if (!quoteList) {
+        return;
+    }
+
+    quoteList.innerHTML = `<p class="quote-status">${message}</p>`;
+}
+
+function formatQuoteDate(createdAt) {
+    const date = new Date(createdAt);
+    if (Number.isNaN(date.getTime())) {
+        return "Date unavailable";
+    }
+
+    return date.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+    });
+}
+
+function createQuoteCard(quote) {
+    const article = document.createElement("article");
+    article.className = "quote-card";
+
+    const heading = document.createElement("h4");
+    heading.textContent = quote.name || "Unnamed request";
+
+    const details = document.createElement("dl");
+    const fields = [
+        ["Email", quote.email],
+        ["Company", quote.company || "Not provided"],
+        ["Phone", quote.phone],
+        ["Message", quote.message],
+        ["Submitted", formatQuoteDate(quote.createdAt)]
+    ];
+
+    fields.forEach(([label, value]) => {
+        const term = document.createElement("dt");
+        term.textContent = label;
+        const description = document.createElement("dd");
+        description.textContent = value || "Not provided";
+        details.append(term, description);
+    });
+
+    article.append(heading, details);
+    return article;
+}
+
+function displayQuotes(quoteList) {
+    const quoteContainer = getElement("quote-list");
+    if (!quoteContainer) {
+        return;
+    }
+
+    quoteContainer.innerHTML = "";
+    quoteList.forEach((quote) => {
+        quoteContainer.appendChild(createQuoteCard(quote));
+    });
+}
+
+async function loadQuotesAsync() {
+    renderQuoteMessage("Loading quote requests...");
+
+    try {
+        const response = await fetch("/api/quotes");
+        if (!response.ok) {
+            throw new Error(`Quote API request failed with status ${response.status}`);
+        }
+
+        const payload = await response.json();
+        if (!Array.isArray(payload)) {
+            throw new Error("Quote API returned an invalid response.");
+        }
+
+        quotes = payload;
+
+        if (quotes.length === 0) {
+            renderQuoteMessage("No quote requests have been submitted yet.");
+            return [];
+        }
+
+        displayQuotes(quotes);
+        return quotes;
+    } catch (error) {
+        console.error("Unable to load quotes from API:", error);
+        quotes = [];
+        renderQuoteMessage("Unable to load quote requests. Please try again later.");
+        return [];
     }
 }
 
@@ -497,6 +592,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setupSmoothScroll();
     initFormValidation();
     loadStonesAsync();
+    loadQuotesAsync();
     console.log("\n✨ Website fully initialized!\n");
     console.log("📚 Learning Phases Implemented:");
     console.log("  Step 5 - Functions ✓");
