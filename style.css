@@ -576,18 +576,28 @@ form button:hover {
 }
 
 .quote-card h4 {
-    margin: 0 0 8px;
+    margin: 0 0 18px;
     font-size: 20px;
 }
 
-.quote-card p {
-    margin-bottom: 18px;
-    color: var(--muted);
+.quote-card dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 8px 14px;
+    margin: 0;
+}
+
+.quote-card dt {
+    font-weight: 600;
+}
+
+.quote-card dd {
+    margin: 0;
     overflow-wrap: anywhere;
 }
 
 .quote-detail-button {
-    margin: 0;
+    margin-top: 18px;
     padding: 10px 16px;
     border: 1px solid var(--dark);
     background: var(--dark);
@@ -633,7 +643,6 @@ form button:hover {
     margin: 0;
     overflow-wrap: anywhere;
 }
-
 /* 11. Footer */
 
 footer {

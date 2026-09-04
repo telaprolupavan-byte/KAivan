@@ -263,7 +263,6 @@ function appendQuoteField(container, label, value) {
     description.textContent = value || "Not provided";
     container.append(term, description);
 }
-
 function createQuoteCard(quote) {
     const article = document.createElement("article");
     article.className = "quote-card";
@@ -271,17 +270,30 @@ function createQuoteCard(quote) {
     const heading = document.createElement("h4");
     heading.textContent = quote.name || "Unnamed request";
 
-    const email = document.createElement("p");
-    email.textContent = quote.email || "Email not provided";
-
     const button = document.createElement("button");
     button.className = "quote-detail-button";
     button.type = "button";
     button.dataset.quoteId = String(quote._id);
     button.textContent = "View Details";
     button.addEventListener("click", () => loadQuoteDetailAsync(button.dataset.quoteId));
+    const details = document.createElement("dl");
+    const fields = [
+        ["Email", quote.email],
+        ["Company", quote.company || "Not provided"],
+        ["Phone", quote.phone],
+        ["Message", quote.message],
+        ["Submitted", formatQuoteDate(quote.createdAt)]
+    ];
 
-    article.append(heading, email, button);
+    fields.forEach(([label, value]) => {
+        const term = document.createElement("dt");
+        term.textContent = label;
+        const description = document.createElement("dd");
+        description.textContent = value || "Not provided";
+        details.append(term, description);
+    });
+
+    article.append(heading, details, button);
     return article;
 }
 
@@ -328,7 +340,6 @@ function displayQuoteDetail(quote) {
     appendQuoteField(details, "Submitted", formatQuoteDate(quote.createdAt));
     quoteDetail.append(heading, details);
 }
-
 async function loadQuotesAsync() {
     renderQuoteMessage("Loading quote requests...");
 
@@ -347,15 +358,18 @@ async function loadQuotesAsync() {
 
         if (quotes.length === 0) {
             renderQuoteMessage("No quote requests have been submitted yet.");
+            renderQuoteDetailMessage("No quote request selected", "Submit a quote request to view its details here.");
             return [];
         }
 
         displayQuotes(quotes);
+        renderQuoteDetailMessage("Select a quote request", "Choose a quote request above to view its details.");
         return quotes;
     } catch (error) {
         console.error("Unable to load quotes from API:", error);
         quotes = [];
         renderQuoteMessage("Unable to load quote requests. Please try again later.");
+        renderQuoteDetailMessage("Unable to load quote request", "Please try again later.");
         return [];
     }
 }
@@ -389,7 +403,6 @@ async function loadQuoteDetailAsync(quoteId) {
         return null;
     }
 }
-
 /* ========================================
 
    STEP 5 & 6: FUNCTIONS - Stone Display & DOM Manipulation
