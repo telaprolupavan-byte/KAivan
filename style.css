@@ -547,6 +547,93 @@ form button:hover {
     opacity: 0.85;
 }
 
+/* Quote Request Display */
+
+.quote-requests {
+    margin-top: 80px;
+}
+
+.quote-requests > h3,
+#quote-detail h3 {
+    font-size: 28px;
+    margin-bottom: 24px;
+}
+
+#quote-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.quote-card,
+.quote-status,
+#quote-detail {
+    margin: 0;
+    padding: 24px;
+    background: var(--white);
+    color: var(--dark);
+    border-radius: 4px;
+}
+
+.quote-card h4 {
+    margin: 0 0 8px;
+    font-size: 20px;
+}
+
+.quote-card p {
+    margin-bottom: 18px;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+}
+
+.quote-detail-button {
+    margin: 0;
+    padding: 10px 16px;
+    border: 1px solid var(--dark);
+    background: var(--dark);
+    color: var(--white);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+}
+
+.quote-detail-button:hover {
+    background: var(--muted);
+}
+
+.quote-status {
+    grid-column: 1 / -1;
+    color: var(--muted);
+}
+
+#quote-detail {
+    margin-top: 24px;
+}
+
+#quote-detail h3 {
+    margin-top: 0;
+}
+
+#quote-detail p {
+    color: var(--muted);
+}
+
+#quote-detail dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 8px 14px;
+    margin: 0;
+}
+
+#quote-detail dt {
+    font-weight: 600;
+}
+
+#quote-detail dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
 /* 11. Footer */
 
 footer {
@@ -629,7 +716,8 @@ footer p {
 
     #collection > div,
     .about-grid,
-    .logistics-grid {
+    .logistics-grid,
+    #quote-list {
         grid-template-columns: 1fr;
     }
 
