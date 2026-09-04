@@ -256,6 +256,13 @@ function formatQuoteDate(createdAt) {
     });
 }
 
+function appendQuoteField(container, label, value) {
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const description = document.createElement("dd");
+    description.textContent = value || "Not provided";
+    container.append(term, description);
+}
 function createQuoteCard(quote) {
     const article = document.createElement("article");
     article.className = "quote-card";
@@ -263,6 +270,12 @@ function createQuoteCard(quote) {
     const heading = document.createElement("h4");
     heading.textContent = quote.name || "Unnamed request";
 
+    const button = document.createElement("button");
+    button.className = "quote-detail-button";
+    button.type = "button";
+    button.dataset.quoteId = String(quote._id);
+    button.textContent = "View Details";
+    button.addEventListener("click", () => loadQuoteDetailAsync(button.dataset.quoteId));
     const details = document.createElement("dl");
     const fields = [
         ["Email", quote.email],
@@ -280,7 +293,7 @@ function createQuoteCard(quote) {
         details.append(term, description);
     });
 
-    article.append(heading, details);
+    article.append(heading, details, button);
     return article;
 }
 
@@ -296,6 +309,37 @@ function displayQuotes(quoteList) {
     });
 }
 
+function renderQuoteDetailMessage(title, message) {
+    const quoteDetail = getElement("quote-detail");
+    if (!quoteDetail) {
+        return;
+    }
+
+    quoteDetail.innerHTML = "";
+    const heading = document.createElement("h3");
+    heading.textContent = title;
+    const paragraph = document.createElement("p");
+    paragraph.textContent = message;
+    quoteDetail.append(heading, paragraph);
+}
+
+function displayQuoteDetail(quote) {
+    const quoteDetail = getElement("quote-detail");
+    if (!quoteDetail) {
+        return;
+    }
+
+    quoteDetail.innerHTML = "";
+    const heading = document.createElement("h3");
+    heading.textContent = quote.name || "Unnamed request";
+    const details = document.createElement("dl");
+    appendQuoteField(details, "Email", quote.email);
+    appendQuoteField(details, "Company", quote.company);
+    appendQuoteField(details, "Phone", quote.phone);
+    appendQuoteField(details, "Message", quote.message);
+    appendQuoteField(details, "Submitted", formatQuoteDate(quote.createdAt));
+    quoteDetail.append(heading, details);
+}
 async function loadQuotesAsync() {
     renderQuoteMessage("Loading quote requests...");
 
@@ -314,19 +358,51 @@ async function loadQuotesAsync() {
 
         if (quotes.length === 0) {
             renderQuoteMessage("No quote requests have been submitted yet.");
+            renderQuoteDetailMessage("No quote request selected", "Submit a quote request to view its details here.");
             return [];
         }
 
         displayQuotes(quotes);
+        renderQuoteDetailMessage("Select a quote request", "Choose a quote request above to view its details.");
         return quotes;
     } catch (error) {
         console.error("Unable to load quotes from API:", error);
         quotes = [];
         renderQuoteMessage("Unable to load quote requests. Please try again later.");
+        renderQuoteDetailMessage("Unable to load quote request", "Please try again later.");
         return [];
     }
 }
 
+async function loadQuoteDetailAsync(quoteId) {
+    renderQuoteDetailMessage("Loading quote request...", "Retrieving quote details.");
+
+    try {
+        const response = await fetch(`/api/quotes/${encodeURIComponent(quoteId)}`);
+
+        if (response.status === 400) {
+            renderQuoteDetailMessage("Invalid quote request", "The selected quote request has an invalid ID.");
+            return null;
+        }
+
+        if (response.status === 404) {
+            renderQuoteDetailMessage("Quote request not found", "This quote request could not be found.");
+            return null;
+        }
+
+        if (!response.ok) {
+            throw new Error(`Quote detail request failed with status ${response.status}`);
+        }
+
+        const quote = await response.json();
+        displayQuoteDetail(quote);
+        return quote;
+    } catch (error) {
+        console.error("Unable to load quote details from API:", error);
+        renderQuoteDetailMessage("Unable to load quote request", "Please try again later.");
+        return null;
+    }
+}
 /* ========================================
 
    STEP 5 & 6: FUNCTIONS - Stone Display & DOM Manipulation
