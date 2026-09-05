@@ -30,7 +30,6 @@ function queryElements(selector) {
    ======================================== */
 
 let stones = {};
-let quotes = [];
 
 /* ========================================
    STEP 5: FUNCTIONS - Mobile Menu Management
@@ -212,7 +211,6 @@ async function handleFormSubmit(event) {
 
         // Reset form
         event.target.reset();
-        loadQuotesAsync();
 
         setTimeout(() => displayFormMessage("", true), 3000);
 
@@ -234,6 +232,7 @@ function initFormValidation() {
     }
 }
 
+<<<<<<< Updated upstream
 function renderQuoteMessage(message) {
     const quoteList = getElement("quote-list");
     if (!quoteList) {
@@ -403,6 +402,8 @@ async function loadQuoteDetailAsync(quoteId) {
         return null;
     }
 }
+=======
+>>>>>>> Stashed changes
 /* ========================================
 
    STEP 5 & 6: FUNCTIONS - Stone Display & DOM Manipulation
@@ -668,7 +669,6 @@ document.addEventListener("DOMContentLoaded", function () {
     setupSmoothScroll();
     initFormValidation();
     loadStonesAsync();
-    loadQuotesAsync();
     console.log("\n✨ Website fully initialized!\n");
     console.log("📚 Learning Phases Implemented:");
     console.log("  Step 5 - Functions ✓");
