@@ -547,6 +547,7 @@ form button:hover {
     opacity: 0.85;
 }
 
+<<<<<<< Updated upstream
 /* Quote Request Display */
 
 .quote-requests {
@@ -643,6 +644,8 @@ form button:hover {
     margin: 0;
     overflow-wrap: anywhere;
 }
+=======
+>>>>>>> Stashed changes
 /* 11. Footer */
 
 footer {
@@ -725,8 +728,7 @@ footer p {
 
     #collection > div,
     .about-grid,
-    .logistics-grid,
-    #quote-list {
+    .logistics-grid {
         grid-template-columns: 1fr;
     }
 
