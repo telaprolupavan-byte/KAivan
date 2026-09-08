@@ -1,3 +1,28 @@
+async function checkAdminAuthentication() {
+    try {
+        const response = await fetch("/api/admin/me", {
+            credentials: "include"
+        });
+
+        if (!response.ok) {
+            window.location.href = "/admin-login.html";
+            return false;
+        }
+
+        const data = await response.json();
+
+        if (!data.authenticated) {
+            window.location.href = "/admin-login.html";
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error("Authentication check failed:", error);
+        window.location.href = "/admin-login.html";
+        return false;
+    }
+}
 let quotes = [];
 
 function getElement(id) {
@@ -139,4 +164,31 @@ async function loadQuoteDetailAsync(quoteId) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", loadQuotesAsync);
+document.addEventListener("DOMContentLoaded", async () => {
+    const authenticated = await checkAdminAuthentication();
+
+    if (!authenticated) {
+        return;
+    }
+
+    loadQuotesAsync();
+
+    const logoutButton = document.getElementById("logout-button");
+
+    logoutButton.addEventListener("click", async () => {
+        try {
+            const response = await fetch("/api/admin/logout", {
+                method: "POST",
+                credentials: "include"
+            });
+
+            if (!response.ok) {
+                throw new Error(`Logout failed with status ${response.status}`);
+            }
+
+            window.location.href = "/admin-login.html";
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
+    });
+});
