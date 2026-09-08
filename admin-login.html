@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaivan Admin Login</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+    <main>
+        <h1>Kaivan Admin</h1>
+        <h2>Login</h2>
+
+        <form id="login-form">
+            <div>
+                <label for="username">Username</label>
+                <input
+                    id="username"
+                    type="text"
+                    name="username"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="password">Password</label>
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    required
+                >
+            </div>
+
+            <button type="submit">Login</button>
+
+            <p id="login-error"></p>
+        </form>
+    </main>
+
+    <script src="admin-login.js"></script>
+</body>
+</html>
