@@ -159,3 +159,29 @@ button:hover {
         grid-template-columns: 1fr;
     }
 }
+.quote-status-control {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 14px 0;
+}
+
+.quote-status-control label {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.quote-status-select {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    font: inherit;
+    cursor: pointer;
+}
+
+.quote-status-select:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}

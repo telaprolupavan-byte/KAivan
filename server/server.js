@@ -606,5 +606,65 @@ async function startServer() {
         process.exitCode = 1;
     }
 }
+// =========================
+// ADMIN QUOTE STATUS MANAGEMENT
+// =========================
 
+const VALID_QUOTE_STATUSES = [
+    "new",
+    "in-progress",
+    "quoted",
+    "completed",
+    "cancelled"
+];
+
+app.patch("/api/quotes/:id/status", requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!ObjectId.isValid(id)) {
+            return res.status(400).json({
+                error: "Invalid quote ID"
+            });
+        }
+
+        if (!VALID_QUOTE_STATUSES.includes(status)) {
+            return res.status(400).json({
+                error: "Invalid quote status"
+            });
+        }
+
+        const result = await db.collection("quotes").updateOne(
+            { _id: new ObjectId(id) },
+            {
+                $set: {
+                    status,
+                    updatedAt: new Date().toISOString()
+                }
+            }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({
+                error: "Quote not found"
+            });
+        }
+
+        const updatedQuote = await db.collection("quotes").findOne({
+            _id: new ObjectId(id)
+        });
+
+        res.json({
+            message: "Quote status updated successfully",
+            quote: updatedQuote
+        });
+    } catch (error) {
+        console.error("Failed to update quote status:", error);
+
+        res.status(500).json({
+            error: "Failed to update quote status"
+        });
+    }
+});
 startServer();
