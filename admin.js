@@ -69,14 +69,116 @@ function createQuoteCard(quote) {
     const email = document.createElement("p");
     email.textContent = quote.email || "Email not provided";
 
+    const statusContainer = document.createElement("div");
+    statusContainer.className = "quote-status-control";
+
+    const statusLabel = document.createElement("label");
+    statusLabel.textContent = "Status";
+
+    const statusSelect = document.createElement("select");
+    statusSelect.className = "quote-status-select";
+
+    const statuses = [
+        { value: "new", label: "New" },
+        { value: "in-progress", label: "In Progress" },
+        { value: "quoted", label: "Quoted" },
+        { value: "completed", label: "Completed" },
+        { value: "cancelled", label: "Cancelled" }
+    ];
+
+    const currentStatus = quote.status || "new";
+
+    statuses.forEach((status) => {
+        const option = document.createElement("option");
+
+        option.value = status.value;
+        option.textContent = status.label;
+
+        if (status.value === currentStatus) {
+            option.selected = true;
+        }
+
+        statusSelect.appendChild(option);
+    });
+
+    statusSelect.dataset.previousStatus = currentStatus;
+
+    statusSelect.addEventListener("change", async () => {
+        await updateQuoteStatus(
+            quote._id,
+            statusSelect.value,
+            statusSelect
+        );
+    });
+
+    statusContainer.append(statusLabel, statusSelect);
+
     const button = document.createElement("button");
     button.type = "button";
     button.dataset.quoteId = String(quote._id);
     button.textContent = "View Details";
-    button.addEventListener("click", () => loadQuoteDetailAsync(button.dataset.quoteId));
 
-    article.append(heading, email, button);
+    button.addEventListener("click", () => {
+        loadQuoteDetailAsync(button.dataset.quoteId);
+    });
+
+    article.append(
+        heading,
+        email,
+        statusContainer,
+        button
+    );
+
     return article;
+}
+async function updateQuoteStatus(quoteId, status, selectElement) {
+    const previousStatus = selectElement.dataset.previousStatus || "new";
+
+    selectElement.disabled = true;
+
+    try {
+        const response = await fetch(
+            `/api/quotes/${encodeURIComponent(quoteId)}/status`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({ status })
+            }
+        );
+
+        const data = await response.json();
+
+        if (response.status === 401) {
+            window.location.href = "/admin-login.html";
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(data.error || "Failed to update quote status");
+        }
+
+        const quote = quotes.find(
+            (item) => String(item._id) === String(quoteId)
+        );
+
+        if (quote) {
+            quote.status = status;
+        }
+
+        selectElement.dataset.previousStatus = status;
+
+    } catch (error) {
+        console.error("Unable to update quote status:", error);
+
+        selectElement.value = previousStatus;
+
+        alert("Unable to update quote status. Please try again.");
+    } finally {
+        selectElement.disabled = false;
+    }
 }
 
 function displayQuotes(quoteList) {
