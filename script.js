@@ -232,7 +232,6 @@ function initFormValidation() {
     }
 }
 
-<<<<<<< Updated upstream
 function renderQuoteMessage(message) {
     const quoteList = getElement("quote-list");
     if (!quoteList) {
@@ -402,8 +401,6 @@ async function loadQuoteDetailAsync(quoteId) {
         return null;
     }
 }
-=======
->>>>>>> Stashed changes
 /* ========================================
 
    STEP 5 & 6: FUNCTIONS - Stone Display & DOM Manipulation
