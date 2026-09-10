@@ -1,4 +1,4 @@
-# Kaivan Stone — Progressive Web Development Learning Journey
+# Kaivan Stone — Progressive Web Development 
 
 **Tagline:** Earth to Excellence 🪨
 
@@ -70,28 +70,7 @@ kaivan/
 
 ## 🚀 Getting Started
 
-1. **Open in VS Code**
-   ```bash
-   code /Users/pavantelaprolu/kaivan
-   ```
 
-2. **Start Backend + Frontend**
-   ```bash
-   npm install
-   npm start
-   ```
-   Then open `http://localhost:3000` in your browser.
-
-3. **Check Console**
-   - Press `F12` → Console tab
-   - See stone collection logging and generation messages
-   - View form validation messages
-
-4. **Test Features**
-   - Click "View Stone" buttons to see stone descriptions
-   - Test form validation with invalid inputs
-   - Try hamburger menu on mobile view (Ctrl+Shift+M in browser)
-   - Smooth scroll to different sections
 
 ---
 
@@ -197,31 +176,7 @@ quoteForm.addEventListener("submit", function (event) {
 
 ## 🎮 Interactive Console Commands
 
-Try these commands in the browser Console (F12):
 
-```javascript
-// Step 10 & 12: Async/Promises - Load all stones from Stone REST API
-await loadStonesAsync()
-
-// Load a single stone from API
-await loadStoneAsync('steel-grey')
-
-// Step 11: JSON - Convert stone to JSON format
-stoneToJSON('black-pearl')
-
-// Step 11 & 12: Local Storage - Save/load stones
-saveStoneToLocalStorage('vision-white')
-getStoneFromLocalStorage('vision-white')
-
-// Step 13: Submit a quote to mock backend
-submitQuoteToBackend({
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "5551234567",
-    company: "Acme Corp",
-    message: "Interested in bulk order"
-})
-```
 
 ## 🔧 Troubleshooting
 
@@ -270,10 +225,6 @@ submitQuoteToBackend({
 
 **Data flows:** Array → Loop → HTML → Display → User → Events → Functions → Update
 
-Each step builds a skill that compounds. Master these foundations, and you can build anything! 🚀
 
 ---
 
-**Created:** 2026-08-12  
-**Status:** ✨ All 13 Steps Complete! 🎓
-**Last Updated:** Steps 5-13 implemented with functions, async/await, JSON, and backend preparation
