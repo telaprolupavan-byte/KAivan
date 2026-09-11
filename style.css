@@ -743,3 +743,140 @@ footer p {
     }
 
 }
+/* =========================================
+   QUOTE FORM - KAIVAN 018
+   ========================================= */
+
+#contact {
+    padding: 100px 8%;
+}
+
+#contact h2 {
+    margin-bottom: 12px;
+}
+
+#contact > p {
+    margin-bottom: 40px;
+    color: #666;
+}
+
+#quote-form {
+    max-width: 1000px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 32px;
+}
+
+#quote-form label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#quote-form input,
+#quote-form select,
+#quote-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#quote-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#quote-form input,
+#quote-form select,
+#quote-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 15px;
+    border: 1px solid #c9c5bc;
+    background: #ffffff;
+    color: #1d1d1b;
+    font: inherit;
+    border-radius: 0;
+}
+
+#quote-form input:focus,
+#quote-form select:focus,
+#quote-form textarea:focus {
+    outline: none;
+    border-color: #1d1d1b;
+}
+
+#quote-form textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+#quote-form button {
+    grid-column: 1 / -1;
+    width: fit-content;
+    padding: 15px 28px;
+    border: none;
+    background: #1d1d1b;
+    color: #ffffff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+#quote-form button:hover {
+    opacity: 0.85;
+}
+
+#quote-form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#form-message {
+    min-height: 24px;
+    margin-bottom: 20px;
+    font-size: 15px;
+}
+
+.stone-quote-button {
+    margin-top: 24px;
+    padding: 14px 22px;
+    border: none;
+    background: #1d1d1b;
+    color: #ffffff;
+    cursor: pointer;
+    font: inherit;
+    transition: opacity 0.2s ease;
+}
+
+.stone-quote-button:hover {
+    opacity: 0.85;
+}
+
+.stone-quote-button:focus-visible {
+    outline: 2px solid #1d1d1b;
+    outline-offset: 3px;
+}
+
+
+/* =========================================
+   MOBILE QUOTE FORM
+   ========================================= */
+
+@media (max-width: 700px) {
+    #contact {
+        padding: 70px 6%;
+    }
+
+    #quote-form {
+        grid-template-columns: 1fr;
+    }
+
+    #quote-form button {
+        grid-column: auto;
+        width: 100%;
+    }
+}
