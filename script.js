@@ -30,6 +30,7 @@ function queryElements(selector) {
    ======================================== */
 
 let stones = {};
+let quotes = [];
 
 /* ========================================
    STEP 5: FUNCTIONS - Mobile Menu Management
@@ -69,7 +70,7 @@ function setupSmoothScroll() {
             e.preventDefault();
             const targetId = this.getAttribute("href");
             const targetElement = document.querySelector(targetId);
-            
+
             if (targetElement) {
                 targetElement.scrollIntoView({
                     behavior: "smooth",
@@ -89,11 +90,18 @@ function setupSmoothScroll() {
    ======================================== */
 
 function extractFormValues() {
+    const stoneSelect = getElement("stone");
+    const stoneId = stoneSelect ? stoneSelect.value.trim() : "";
+    const selectedStone = stones[stoneId];
+
     return {
         name: getElement("name").value.trim(),
         email: getElement("email").value.trim(),
-        company: getElement("company").value.trim(),
         phone: getElement("phone").value.trim(),
+        company: getElement("company").value.trim(),
+        stoneId: stoneId,
+        stoneName: selectedStone ? selectedStone.name : "",
+        quantity: getElement("quantity").value.trim(),
         message: getElement("message").value.trim()
     };
 }
@@ -112,78 +120,142 @@ function validateEmail(email) {
     if (email === "") {
         return { valid: false, error: "Please enter your email." };
     }
-    // Simple email regex
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!emailRegex.test(email)) {
-        return { valid: false, error: "Please enter a valid email address." };
+        return {
+            valid: false,
+            error: "Please enter a valid email address."
+        };
     }
+
     return { valid: true, error: "" };
 }
 
 function validatePhone(phone) {
     if (phone === "") {
-        return { valid: false, error: "Please enter your phone number." };
+        return {
+            valid: false,
+            error: "Please enter your phone number."
+        };
     }
-    // Simple phone validation (10+ digits)
+
     const phoneRegex = /^\d{10,}$/;
+
     if (!phoneRegex.test(phone.replace(/\D/g, ""))) {
-        return { valid: false, error: "Please enter a valid phone number." };
+        return {
+            valid: false,
+            error: "Please enter a valid phone number."
+        };
     }
+
     return { valid: true, error: "" };
+}
+
+function validateStone(stoneId) {
+    if (stoneId === "") {
+        return {
+            valid: false,
+            error: "Please select a stone."
+        };
+    }
+
+    if (!stones[stoneId]) {
+        return {
+            valid: false,
+            error: "Selected stone is not available."
+        };
+    }
+
+    if (stones[stoneId].inStock === false) {
+        return {
+            valid: false,
+            error: "Please select a stone that is currently in stock."
+        };
+    }
+
+    return {
+        valid: true,
+        error: ""
+    };
 }
 
 function validateMessage(message) {
     if (message === "") {
-        return { valid: false, error: "Please enter your message." };
+        return {
+            valid: false,
+            error: "Please enter your message."
+        };
     }
+
     if (message.length < 10) {
-        return { valid: false, error: "Message must be at least 10 characters." };
+        return {
+            valid: false,
+            error: "Message must be at least 10 characters."
+        };
     }
-    return { valid: true, error: "" };
+
+    return {
+        valid: true,
+        error: ""
+    };
 }
 
-function displayFormMessage(message, isSuccess = true) {
+function displayFormMessage(message, type = "success") {
     const formMessage = getElement("form-message");
-    if (formMessage) {
-        formMessage.textContent = message;
-        formMessage.style.color = isSuccess ? "#4caf50" : "#d32f2f";
+
+    if (!formMessage) {
+        return;
+    }
+
+    formMessage.textContent = message;
+
+    if (type === "success") {
+        formMessage.style.color = "#4caf50";
+    } else if (type === "error") {
+        formMessage.style.color = "#d32f2f";
+    } else {
+        formMessage.style.color = "#555";
     }
 }
 
 async function handleFormSubmit(event) {
     event.preventDefault();
 
+    const form = event.target;
     const formValues = extractFormValues();
 
-    // Validate each field
-    const nameValidation = validateName(formValues.name);
-    if (!nameValidation.valid) {
-        displayFormMessage(nameValidation.error, false);
+    const validations = [
+        validateName(formValues.name),
+        validateEmail(formValues.email),
+        validatePhone(formValues.phone),
+        validateStone(formValues.stoneId),
+        validateMessage(formValues.message)
+    ];
+
+    const invalidField = validations.find(
+        validation => !validation.valid
+    );
+
+    if (invalidField) {
+        displayFormMessage(
+            invalidField.error,
+            "error"
+        );
         return;
     }
 
-    const emailValidation = validateEmail(formValues.email);
-    if (!emailValidation.valid) {
-        displayFormMessage(emailValidation.error, false);
-        return;
+    const submitButton = getElement("quote-submit");
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Submitting...";
     }
 
-    const phoneValidation = validatePhone(formValues.phone);
-    if (!phoneValidation.valid) {
-        displayFormMessage(phoneValidation.error, false);
-        return;
-    }
-
-    const messageValidation = validateMessage(formValues.message);
-    if (!messageValidation.valid) {
-        displayFormMessage(messageValidation.error, false);
-        return;
-    }
-
-    // Show loading message
     displayFormMessage(
         "Submitting your quote request...",
-        true
+        "info"
     );
 
     try {
@@ -195,54 +267,76 @@ async function handleFormSubmit(event) {
             body: JSON.stringify(formValues)
         });
 
-        const data = await response.json();
+        const result = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || "Unable to submit quote request.");
+            throw new Error(
+                result.error ||
+                "Unable to submit your quote request."
+            );
         }
 
-        // Success
+        const reference =
+            result.quote?.reference || "Pending";
+
         displayFormMessage(
-            data.message || "Thank you! Your quote request has been received. We'll contact you within 24 hours.",
-            true
+            `Thank you! Your quote request has been received. Reference: ${reference}`,
+            "success"
         );
 
-        console.log("📝 Quote request submitted:", data.quote);
-
-        // Reset form
-        event.target.reset();
-
-        setTimeout(() => displayFormMessage("", true), 3000);
-
+        form.reset();
     } catch (error) {
-        console.error("❌ Quote request failed:", error);
+        console.error(
+            "Quote submission failed:",
+            error
+        );
 
         displayFormMessage(
-            "Unable to submit your quote request. Please try again later.",
-            false
+            error.message ||
+            "Unable to submit your quote request. Please try again.",
+            "error"
         );
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = "Request a Quote";
+        }
     }
 }
 
 function initFormValidation() {
     const quoteForm = getElement("quote-form");
+
     if (quoteForm) {
-        quoteForm.addEventListener("submit", handleFormSubmit);
-        console.log("✓ Form validation initialized");
+        quoteForm.addEventListener(
+            "submit",
+            handleFormSubmit
+        );
+
+        console.log(
+            "✓ Form validation initialized"
+        );
     }
 }
 
+/* ========================================
+   STEP 8: QUOTE MANAGEMENT
+   ======================================== */
+
 function renderQuoteMessage(message) {
     const quoteList = getElement("quote-list");
+
     if (!quoteList) {
         return;
     }
 
-    quoteList.innerHTML = `<p class="quote-status">${message}</p>`;
+    quoteList.innerHTML =
+        `<p class="quote-status">${message}</p>`;
 }
 
 function formatQuoteDate(createdAt) {
     const date = new Date(createdAt);
+
     if (Number.isNaN(date.getTime())) {
         return "Date unavailable";
     }
@@ -254,280 +348,699 @@ function formatQuoteDate(createdAt) {
     });
 }
 
-function appendQuoteField(container, label, value) {
+function appendQuoteField(
+    container,
+    label,
+    value
+) {
     const term = document.createElement("dt");
     term.textContent = label;
-    const description = document.createElement("dd");
-    description.textContent = value || "Not provided";
+
+    const description =
+        document.createElement("dd");
+
+    description.textContent =
+        value || "Not provided";
+
     container.append(term, description);
 }
+
 function createQuoteCard(quote) {
-    const article = document.createElement("article");
+    const article =
+        document.createElement("article");
+
     article.className = "quote-card";
 
-    const heading = document.createElement("h4");
-    heading.textContent = quote.name || "Unnamed request";
+    const heading =
+        document.createElement("h4");
 
-    const button = document.createElement("button");
-    button.className = "quote-detail-button";
+    heading.textContent =
+        quote.name || "Unnamed request";
+
+    const button =
+        document.createElement("button");
+
+    button.className =
+        "quote-detail-button";
+
     button.type = "button";
-    button.dataset.quoteId = String(quote._id);
-    button.textContent = "View Details";
-    button.addEventListener("click", () => loadQuoteDetailAsync(button.dataset.quoteId));
-    const details = document.createElement("dl");
+
+    button.dataset.quoteId =
+        String(quote._id);
+
+    button.textContent =
+        "View Details";
+
+    button.addEventListener(
+        "click",
+        () =>
+            loadQuoteDetailAsync(
+                button.dataset.quoteId
+            )
+    );
+
+    const details =
+        document.createElement("dl");
+
     const fields = [
+        ["Reference", quote.reference],
         ["Email", quote.email],
-        ["Company", quote.company || "Not provided"],
+        ["Company", quote.company],
         ["Phone", quote.phone],
+        ["Stone", quote.stoneName],
+        ["Quantity", quote.quantity],
         ["Message", quote.message],
+        ["Status", quote.status],
         ["Submitted", formatQuoteDate(quote.createdAt)]
     ];
 
     fields.forEach(([label, value]) => {
-        const term = document.createElement("dt");
+        const term =
+            document.createElement("dt");
+
         term.textContent = label;
-        const description = document.createElement("dd");
-        description.textContent = value || "Not provided";
-        details.append(term, description);
+
+        const description =
+            document.createElement("dd");
+
+        description.textContent =
+            value || "Not provided";
+
+        details.append(
+            term,
+            description
+        );
     });
 
-    article.append(heading, details, button);
+    article.append(
+        heading,
+        details,
+        button
+    );
+
     return article;
 }
 
 function displayQuotes(quoteList) {
-    const quoteContainer = getElement("quote-list");
+    const quoteContainer =
+        getElement("quote-list");
+
     if (!quoteContainer) {
         return;
     }
 
     quoteContainer.innerHTML = "";
-    quoteList.forEach((quote) => {
-        quoteContainer.appendChild(createQuoteCard(quote));
+
+    quoteList.forEach(quote => {
+        quoteContainer.appendChild(
+            createQuoteCard(quote)
+        );
     });
 }
 
-function renderQuoteDetailMessage(title, message) {
-    const quoteDetail = getElement("quote-detail");
+function renderQuoteDetailMessage(
+    title,
+    message
+) {
+    const quoteDetail =
+        getElement("quote-detail");
+
     if (!quoteDetail) {
         return;
     }
 
     quoteDetail.innerHTML = "";
-    const heading = document.createElement("h3");
+
+    const heading =
+        document.createElement("h3");
+
     heading.textContent = title;
-    const paragraph = document.createElement("p");
+
+    const paragraph =
+        document.createElement("p");
+
     paragraph.textContent = message;
-    quoteDetail.append(heading, paragraph);
+
+    quoteDetail.append(
+        heading,
+        paragraph
+    );
 }
 
 function displayQuoteDetail(quote) {
-    const quoteDetail = getElement("quote-detail");
+    const quoteDetail =
+        getElement("quote-detail");
+
     if (!quoteDetail) {
         return;
     }
 
     quoteDetail.innerHTML = "";
-    const heading = document.createElement("h3");
-    heading.textContent = quote.name || "Unnamed request";
-    const details = document.createElement("dl");
-    appendQuoteField(details, "Email", quote.email);
-    appendQuoteField(details, "Company", quote.company);
-    appendQuoteField(details, "Phone", quote.phone);
-    appendQuoteField(details, "Message", quote.message);
-    appendQuoteField(details, "Submitted", formatQuoteDate(quote.createdAt));
-    quoteDetail.append(heading, details);
+
+    const heading =
+        document.createElement("h3");
+
+    heading.textContent =
+        quote.name || "Unnamed request";
+
+    const details =
+        document.createElement("dl");
+
+    appendQuoteField(
+        details,
+        "Reference",
+        quote.reference
+    );
+
+    appendQuoteField(
+        details,
+        "Email",
+        quote.email
+    );
+
+    appendQuoteField(
+        details,
+        "Company",
+        quote.company
+    );
+
+    appendQuoteField(
+        details,
+        "Phone",
+        quote.phone
+    );
+
+    appendQuoteField(
+        details,
+        "Stone",
+        quote.stoneName
+    );
+
+    appendQuoteField(
+        details,
+        "Quantity",
+        quote.quantity
+    );
+
+    appendQuoteField(
+        details,
+        "Message",
+        quote.message
+    );
+
+    appendQuoteField(
+        details,
+        "Status",
+        quote.status
+    );
+
+    appendQuoteField(
+        details,
+        "Submitted",
+        formatQuoteDate(
+            quote.createdAt
+        )
+    );
+
+    quoteDetail.append(
+        heading,
+        details
+    );
 }
+
 async function loadQuotesAsync() {
-    renderQuoteMessage("Loading quote requests...");
+    renderQuoteMessage(
+        "Loading quote requests..."
+    );
 
     try {
-        const response = await fetch("/api/quotes");
+        const response =
+            await fetch("/api/quotes");
+
         if (!response.ok) {
-            throw new Error(`Quote API request failed with status ${response.status}`);
+            throw new Error(
+                `Quote API request failed with status ${response.status}`
+            );
         }
 
-        const payload = await response.json();
+        const payload =
+            await response.json();
+
         if (!Array.isArray(payload)) {
-            throw new Error("Quote API returned an invalid response.");
+            throw new Error(
+                "Quote API returned an invalid response."
+            );
         }
 
         quotes = payload;
 
         if (quotes.length === 0) {
-            renderQuoteMessage("No quote requests have been submitted yet.");
-            renderQuoteDetailMessage("No quote request selected", "Submit a quote request to view its details here.");
+            renderQuoteMessage(
+                "No quote requests have been submitted yet."
+            );
+
+            renderQuoteDetailMessage(
+                "No quote request selected",
+                "Submit a quote request to view its details here."
+            );
+
             return [];
         }
 
         displayQuotes(quotes);
-        renderQuoteDetailMessage("Select a quote request", "Choose a quote request above to view its details.");
+
+        renderQuoteDetailMessage(
+            "Select a quote request",
+            "Choose a quote request above to view its details."
+        );
+
         return quotes;
     } catch (error) {
-        console.error("Unable to load quotes from API:", error);
+        console.error(
+            "Unable to load quotes from API:",
+            error
+        );
+
         quotes = [];
-        renderQuoteMessage("Unable to load quote requests. Please try again later.");
-        renderQuoteDetailMessage("Unable to load quote request", "Please try again later.");
+
+        renderQuoteMessage(
+            "Unable to load quote requests. Please try again later."
+        );
+
+        renderQuoteDetailMessage(
+            "Unable to load quote request",
+            "Please try again later."
+        );
+
         return [];
     }
 }
 
-async function loadQuoteDetailAsync(quoteId) {
-    renderQuoteDetailMessage("Loading quote request...", "Retrieving quote details.");
+async function loadQuoteDetailAsync(
+    quoteId
+) {
+    renderQuoteDetailMessage(
+        "Loading quote request...",
+        "Retrieving quote details."
+    );
 
     try {
-        const response = await fetch(`/api/quotes/${encodeURIComponent(quoteId)}`);
+        const response =
+            await fetch(
+                `/api/quotes/${encodeURIComponent(quoteId)}`
+            );
 
         if (response.status === 400) {
-            renderQuoteDetailMessage("Invalid quote request", "The selected quote request has an invalid ID.");
+            renderQuoteDetailMessage(
+                "Invalid quote request",
+                "The selected quote request has an invalid ID."
+            );
+
             return null;
         }
 
         if (response.status === 404) {
-            renderQuoteDetailMessage("Quote request not found", "This quote request could not be found.");
+            renderQuoteDetailMessage(
+                "Quote request not found",
+                "This quote request could not be found."
+            );
+
             return null;
         }
 
         if (!response.ok) {
-            throw new Error(`Quote detail request failed with status ${response.status}`);
+            throw new Error(
+                `Quote detail request failed with status ${response.status}`
+            );
         }
 
-        const quote = await response.json();
+        const quote =
+            await response.json();
+
         displayQuoteDetail(quote);
+
         return quote;
     } catch (error) {
-        console.error("Unable to load quote details from API:", error);
-        renderQuoteDetailMessage("Unable to load quote request", "Please try again later.");
+        console.error(
+            "Unable to load quote details from API:",
+            error
+        );
+
+        renderQuoteDetailMessage(
+            "Unable to load quote request",
+            "Please try again later."
+        );
+
         return null;
     }
 }
-/* ========================================
 
+/* ========================================
    STEP 5 & 6: FUNCTIONS - Stone Display & DOM Manipulation
    Create and manipulate DOM elements dynamically
    ======================================== */
 
 function createStoneCard(stone) {
-    const article = document.createElement("article");
-    article.className = "stone-card";
-    
-    // Stock status
-    const stockStatus = stone.inStock ? "In Stock" : "Out of Stock";
-    const stockClass = stone.inStock ? "in-stock" : "out-of-stock";
-    
-    const imageSrc = stone.image || `images/${stone.id}.jpg`;
+    const article =
+        document.createElement("article");
+
+    article.className =
+        "stone-card";
+
+    const stockStatus =
+        stone.inStock
+            ? "In Stock"
+            : "Out of Stock";
+
+    const stockClass =
+        stone.inStock
+            ? "in-stock"
+            : "out-of-stock";
+
+    const imageSrc =
+        stone.image ||
+        `images/${stone.id}.jpg`;
+
     article.innerHTML = `
-        <img src="${imageSrc}" alt="${stone.name} granite" loading="lazy" onerror="this.src='images/hero.jpg'">
+        <img
+            src="${imageSrc}"
+            alt="${stone.name} granite"
+            loading="lazy"
+            onerror="this.src='images/hero.jpg'"
+        >
+
         <h3>${stone.name}</h3>
-        <p class="stone-price">${stone.price || "Contact for pricing"}</p>
-        <span class="stone-stock ${stockClass}">${stockStatus}</span>
-        <button class="stone-button" data-stone="${stone.id}" ${!stone.inStock ? 'disabled' : ''}>View Stone</button>
+
+        <p class="stone-price">
+            ${stone.price || "Contact for pricing"}
+        </p>
+
+        <span class="stone-stock ${stockClass}">
+            ${stockStatus}
+        </span>
+
+        <button
+            class="stone-button"
+            data-stone="${stone.id}"
+            ${!stone.inStock ? "disabled" : ""}
+        >
+            View Stone
+        </button>
     `;
-    
+
     return article;
 }
 
-function displayStoneInfo(stoneId) {
-    const stone = stones[stoneId];
-    if (!stone) {
-        console.warn(`Stone "${stoneId}" not found`);
+function displayStoneInfo(stone) {
+    const stoneInfo =
+        getElement("stone-info");
+
+    if (!stoneInfo) {
         return;
     }
-    
-    const stoneInfo = getElement("stone-info");
-    if (!stoneInfo) return;
-    
-    const ratingStars = typeof stone.rating === "number" ? "⭐".repeat(Math.round(stone.rating)) : "";
-    const certBadges = Array.isArray(stone.certifications)
-        ? stone.certifications.map(cert => `<span class="cert-badge">${cert}</span>`).join("")
-        : "";
+
+    const ratingStars =
+        typeof stone.rating === "number"
+            ? "⭐".repeat(
+                Math.round(stone.rating)
+            )
+            : "";
+
+    const certBadges =
+        Array.isArray(
+            stone.certifications
+        )
+            ? stone.certifications
+                .map(
+                    cert =>
+                        `<span class="cert-badge">${cert}</span>`
+                )
+                .join("")
+            : "";
+
     const details = [
-        stone.price ? `<p><strong>Price:</strong> ${stone.price}</p>` : "",
-        stone.origin ? `<p><strong>Origin:</strong> ${stone.origin}</p>` : "",
-        stone.color ? `<p><strong>Color:</strong> ${stone.color}</p>` : "",
-        stone.finish ? `<p><strong>Finish:</strong> ${stone.finish}</p>` : "",
-        stone.dimensions ? `<p><strong>Size:</strong> ${stone.dimensions}</p>` : "",
-        ratingStars ? `<p><strong>Rating:</strong> ${ratingStars} (${stone.rating}/5)</p>` : "",
-        certBadges ? `<p><strong>Certifications:</strong> ${certBadges}</p>` : "",
-        `<p><strong>Stock:</strong> ${stone.inStock ? "✓ Available" : "✗ Coming Soon"}</p>`
-    ].filter(Boolean).join("");
-    
+        stone.price
+            ? `<p><strong>Price:</strong> ${stone.price}</p>`
+            : "",
+
+        stone.origin
+            ? `<p><strong>Origin:</strong> ${stone.origin}</p>`
+            : "",
+
+        stone.color
+            ? `<p><strong>Color:</strong> ${stone.color}</p>`
+            : "",
+
+        stone.finish
+            ? `<p><strong>Finish:</strong> ${stone.finish}</p>`
+            : "",
+
+        stone.dimensions
+            ? `<p><strong>Size:</strong> ${stone.dimensions}</p>`
+            : "",
+
+        ratingStars
+            ? `<p><strong>Rating:</strong> ${ratingStars} (${stone.rating}/5)</p>`
+            : "",
+
+        certBadges
+            ? `<p><strong>Certifications:</strong> ${certBadges}</p>`
+            : "",
+
+        `<p><strong>Stock:</strong> ${
+            stone.inStock
+                ? "✓ Available"
+                : "✗ Coming Soon"
+        }</p>`
+    ]
+        .filter(Boolean)
+        .join("");
+
     stoneInfo.innerHTML = `
         <div class="stone-detail">
             <h3>${stone.name}</h3>
-            <p class="stone-desc">${stone.description}</p>
-            
+
+            <p class="stone-desc">
+                ${stone.description || ""}
+            </p>
+
             <div class="stone-meta">
                 ${details}
             </div>
+
+            ${
+                stone.inStock
+                    ? `
+                    <button
+                        type="button"
+                        class="stone-quote-button"
+                        data-quote-stone="${stone.id}"
+                    >
+                        Request a Quote for ${stone.name}
+                    </button>
+                    `
+                    : ""
+            }
         </div>
     `;
-    
-    console.log(`Displayed stone info for: ${stone.name}`);
-}
 
-function attachStoneButtonListeners() {
-    const stoneButtons = queryElements(".stone-button");
-    stoneButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
-            const stoneId = button.dataset.stone;
-            displayStoneInfo(stoneId);
-        });
-    });
-    console.log(`✓ Attached event listeners to ${stoneButtons.length} stone buttons`);
+    const quoteButton =
+        stoneInfo.querySelector(
+            ".stone-quote-button"
+        );
+
+    if (quoteButton) {
+        quoteButton.addEventListener(
+            "click",
+            () => {
+                selectStoneForQuote(
+                    stone.id
+                );
+            }
+        );
+    }
+
+    console.log(
+        `Displayed stone info for: ${stone.name}`
+    );
 }
 
 /* ========================================
    STEP 6: DOM MANIPULATION & STEP 10: REAL API FETCH
    ======================================== */
 
-function renderCollectionMessage(message) {
-    const collectionGrid = getElement("collection-grid");
+function renderCollectionMessage(
+    message
+) {
+    const collectionGrid =
+        getElement("collection-grid");
+
     if (!collectionGrid) {
         return;
     }
-    collectionGrid.innerHTML = `<p class="collection-status">${message}</p>`;
+
+    collectionGrid.innerHTML =
+        `<p class="collection-status">${message}</p>`;
 }
 
-function normalizeStonesResponse(payload) {
-    if (!payload || typeof payload !== "object") {
-        throw new Error("Stone API returned an invalid response.");
+function normalizeStonesResponse(
+    payload
+) {
+    if (
+        !payload ||
+        typeof payload !== "object"
+    ) {
+        throw new Error(
+            "Stone API returned an invalid response."
+        );
     }
 
     if (Array.isArray(payload)) {
-        return payload.map((stone, index) => ({
-            ...stone,
-            id: stone.id || `stone-${index + 1}`
-        }));
+        return payload.map(
+            (stone, index) => ({
+                ...stone,
+                id:
+                    stone.id ||
+                    `stone-${index + 1}`
+            })
+        );
     }
 
-    return Object.entries(payload).map(([id, stone]) => ({
-        ...stone,
-        id: stone.id || id
-    }));
+    return Object.entries(payload).map(
+        ([id, stone]) => ({
+            ...stone,
+            id: stone.id || id
+        })
+    );
 }
 
-function generateStoneCollection(stoneList) {
-    const collectionGrid = getElement("collection-grid");
+function populateStoneSelect(
+    stoneList
+) {
+    const stoneSelect =
+        getElement("stone");
+
+    if (!stoneSelect) {
+        return;
+    }
+
+    stoneSelect.innerHTML =
+        '<option value="">Select a stone</option>';
+
+    stoneList
+        .filter(
+            stone =>
+                stone.inStock !== false
+        )
+        .forEach(stone => {
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                stone.id;
+
+            option.textContent =
+                stone.name;
+
+            stoneSelect.appendChild(
+                option
+            );
+        });
+}
+
+function selectStoneForQuote(
+    stoneId
+) {
+    const stoneSelect =
+        getElement("stone");
+
+    const contactSection =
+        getElement("contact");
+
+    if (!stoneSelect) {
+        return;
+    }
+
+    stoneSelect.value =
+        stoneId;
+
+    if (contactSection) {
+        contactSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+    console.log(
+        `Selected stone for quote: ${stoneId}`
+    );
+}
+
+function attachStoneButtonListeners() {
+    const stoneButtons =
+        queryElements(".stone-button");
+
+    stoneButtons.forEach(
+        function (button) {
+            button.addEventListener(
+                "click",
+                function () {
+                    const stoneId =
+                        button.dataset.stone;
+
+                    const stone =
+                        stones[stoneId];
+
+                    if (stone) {
+                        displayStoneInfo(
+                            stone
+                        );
+                    }
+                }
+            );
+        }
+    );
+
+    console.log(
+        `✓ Attached event listeners to ${stoneButtons.length} stone buttons`
+    );
+}
+
+function generateStoneCollection(
+    stoneList
+) {
+    const collectionGrid =
+        getElement("collection-grid");
+
     if (!collectionGrid) {
         return;
     }
 
     collectionGrid.innerHTML = "";
-    stoneList.forEach(function (stone) {
-        const article = createStoneCard(stone);
-        collectionGrid.appendChild(article);
+
+    stoneList.forEach(stone => {
+        collectionGrid.appendChild(
+            createStoneCard(stone)
+        );
     });
 
-    console.log(`✓ Generated ${stoneList.length} stone cards`);
     attachStoneButtonListeners();
+
+    console.log(
+        `✓ Generated ${stoneList.length} stone cards`
+    );
 }
 
 function resetStoneInfo() {
-    const stoneInfo = getElement("stone-info");
+    const stoneInfo =
+        getElement("stone-info");
+
     if (!stoneInfo) {
         return;
     }
+
     stoneInfo.innerHTML = `
         <h3>Select a stone</h3>
         <p>Choose a stone above to learn more.</p>
@@ -535,78 +1048,165 @@ function resetStoneInfo() {
 }
 
 async function loadStonesAsync() {
-    renderCollectionMessage("Loading stones...");
+    renderCollectionMessage(
+        "Loading stones..."
+    );
 
     try {
-        const response = await fetch("/api/stones");
+        const response =
+            await fetch("/api/stones");
+
         if (!response.ok) {
-            throw new Error(`Stone API request failed with status ${response.status}`);
+            throw new Error(
+                `Stone API request failed with status ${response.status}`
+            );
         }
 
-        const payload = await response.json();
-        const stoneList = normalizeStonesResponse(payload);
+        const payload =
+            await response.json();
+
+        const stoneList =
+            normalizeStonesResponse(
+                payload
+            );
 
         if (stoneList.length === 0) {
-            renderCollectionMessage("No stones available at this time.");
+            renderCollectionMessage(
+                "No stones available at this time."
+            );
+
             resetStoneInfo();
+
             return [];
         }
 
-        stones = stoneList.reduce((catalog, stone) => {
-            catalog[stone.id] = stone;
-            return catalog;
-        }, {});
-        generateStoneCollection(stoneList);
+        stones =
+            stoneList.reduce(
+                (catalog, stone) => {
+                    catalog[stone.id] =
+                        stone;
+
+                    return catalog;
+                },
+                {}
+            );
+
+        populateStoneSelect(
+            stoneList
+        );
+
+        generateStoneCollection(
+            stoneList
+        );
+
         return stoneList;
     } catch (error) {
-        console.error("Unable to load stones from API:", error);
-        renderCollectionMessage("Unable to load stones. Please try again later.");
+        console.error(
+            "Unable to load stones from API:",
+            error
+        );
+
+        renderCollectionMessage(
+            "Unable to load stones. Please try again later."
+        );
+
         resetStoneInfo();
+
         return [];
     }
 }
 
-function stoneToJSON(stoneId) {
-    const stone = stones[stoneId];
+function stoneToJSON(
+    stoneId
+) {
+    const stone =
+        stones[stoneId];
+
     if (!stone) {
         return null;
     }
-    return JSON.stringify(stone, null, 2);
+
+    return JSON.stringify(
+        stone,
+        null,
+        2
+    );
 }
 
-function saveStoneToLocalStorage(stoneId) {
-    const stone = stones[stoneId];
+function saveStoneToLocalStorage(
+    stoneId
+) {
+    const stone =
+        stones[stoneId];
+
     if (!stone) {
-        console.warn(`Stone "${stoneId}" not found`);
+        console.warn(
+            `Stone "${stoneId}" not found`
+        );
+
         return false;
     }
-    localStorage.setItem(`stone_${stoneId}`, JSON.stringify(stone));
-    console.log(`✓ Saved ${stone.name} to localStorage`);
+
+    localStorage.setItem(
+        `stone_${stoneId}`,
+        JSON.stringify(stone)
+    );
+
+    console.log(
+        `✓ Saved ${stone.name} to localStorage`
+    );
+
     return true;
 }
 
-function getStoneFromLocalStorage(stoneId) {
-    const data = localStorage.getItem(`stone_${stoneId}`);
+function getStoneFromLocalStorage(
+    stoneId
+) {
+    const data =
+        localStorage.getItem(
+            `stone_${stoneId}`
+        );
+
     if (!data) {
         return null;
     }
-    const stone = JSON.parse(data);
-    console.log(`✓ Loaded ${stone.name} from localStorage`);
+
+    const stone =
+        JSON.parse(data);
+
+    console.log(
+        `✓ Loaded ${stone.name} from localStorage`
+    );
+
     return stone;
 }
 
-async function loadStoneAsync(stoneId) {
+async function loadStoneAsync(
+    stoneId
+) {
     if (stones[stoneId]) {
         return stones[stoneId];
     }
 
-    const response = await fetch(`/api/stones/${stoneId}`);
+    const response =
+        await fetch(
+            `/api/stones/${stoneId}`
+        );
+
     if (!response.ok) {
-        throw new Error(`Stone "${stoneId}" request failed with status ${response.status}`);
+        throw new Error(
+            `Stone "${stoneId}" request failed with status ${response.status}`
+        );
     }
 
-    const stone = await response.json();
-    stones[stoneId] = { ...stone, id: stoneId };
+    const stone =
+        await response.json();
+
+    stones[stoneId] = {
+        ...stone,
+        id: stoneId
+    };
+
     return stones[stoneId];
 }
 
@@ -658,29 +1258,85 @@ async function loadStoneAsync(stoneId) {
    INITIALIZATION - Run on Page Load
    ======================================== */
 
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("\n🔧 Initializing Kaivan website...\n");
-    
-    // Initialize all features
-    initMobileMenu();
-    setupSmoothScroll();
-    initFormValidation();
-    loadStonesAsync();
-    console.log("\n✨ Website fully initialized!\n");
-    console.log("📚 Learning Phases Implemented:");
-    console.log("  Step 5 - Functions ✓");
-    console.log("  Step 6 - DOM Manipulation ✓");
-    console.log("  Step 7 - Stone Interaction ✓");
-    console.log("  Step 8 - Advanced Forms ✓");
-    console.log("  Step 9 - Data & Logic ✓");
-    console.log("  Step 10 - Fetch & APIs ✓");
-    console.log("  Step 11 - JSON ✓");
-    console.log("  Step 12 - Async JS ✓");
-    console.log("  Step 13 - Backend Preparation ✓");
-    console.log("\n🎓 Try these in Console:");
-    console.log("  loadStonesAsync()");
-    console.log("  loadStoneAsync('steel-grey')");
-    console.log("  stoneToJSON('black-pearl')");
-    console.log("  saveStoneToLocalStorage('vision-white')");
-    console.log("  getStoneFromLocalStorage('vision-white')");
-});
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+        console.log(
+            "\n🔧 Initializing Kaivan website...\n"
+        );
+
+        // Initialize all features
+        initMobileMenu();
+        setupSmoothScroll();
+        initFormValidation();
+        loadStonesAsync();
+
+        console.log(
+            "\n✨ Website fully initialized!\n"
+        );
+
+        console.log(
+            "📚 Learning Phases Implemented:"
+        );
+
+        console.log(
+            "  Step 5 - Functions ✓"
+        );
+
+        console.log(
+            "  Step 6 - DOM Manipulation ✓"
+        );
+
+        console.log(
+            "  Step 7 - Stone Interaction ✓"
+        );
+
+        console.log(
+            "  Step 8 - Advanced Forms ✓"
+        );
+
+        console.log(
+            "  Step 9 - Data & Logic ✓"
+        );
+
+        console.log(
+            "  Step 10 - Fetch & APIs ✓"
+        );
+
+        console.log(
+            "  Step 11 - JSON ✓"
+        );
+
+        console.log(
+            "  Step 12 - Async JS ✓"
+        );
+
+        console.log(
+            "  Step 13 - Backend Preparation ✓"
+        );
+
+        console.log(
+            "\n🎓 Try these in Console:"
+        );
+
+        console.log(
+            "  loadStonesAsync()"
+        );
+
+        console.log(
+            "  loadStoneAsync('steel-grey')"
+        );
+
+        console.log(
+            "  stoneToJSON('black-pearl')"
+        );
+
+        console.log(
+            "  saveStoneToLocalStorage('vision-white')"
+        );
+
+        console.log(
+            "  getStoneFromLocalStorage('vision-white')"
+        );
+    }
+);

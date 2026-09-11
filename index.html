@@ -157,38 +157,68 @@
 
         </section>
 
-        <section id="contact">
+    <form id="quote-form">
+    <label for="name">Name *</label>
+    <input
+        type="text"
+        id="name"
+        name="name"
+        autocomplete="name"
+        required
+    >
 
-            <h2>Let's Work Together.</h2>
+    <label for="email">Email *</label>
+    <input
+        type="email"
+        id="email"
+        name="email"
+        autocomplete="email"
+        required
+    >
 
-            <p>
-                We look forward to partnering with you.
-            </p>
+    <label for="phone">Phone *</label>
+    <input
+        type="tel"
+        id="phone"
+        name="phone"
+        autocomplete="tel"
+        required
+    >
 
-            <div id="form-message"></div>
+    <label for="company">Company</label>
+    <input
+        type="text"
+        id="company"
+        name="company"
+        autocomplete="organization"
+    >
 
-            <form id="quote-form">
+    <label for="stone">Selected Stone *</label>
+    <select id="stone" name="stoneId" required>
+        <option value="">Select a stone</option>
+    </select>
 
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" required>
+    <label for="quantity">Project Quantity</label>
+    <input
+        type="text"
+        id="quantity"
+        name="quantity"
+        placeholder="Example: 2,000 sq. ft."
+    >
 
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+    <label for="message">Project Details *</label>
+    <textarea
+        id="message"
+        name="message"
+        rows="6"
+        placeholder="Tell us about your project, finish, dimensions, delivery location, or anything else we should know."
+        required
+    ></textarea>
 
-                <label for="phone">Phone</label>
-                <input type="tel" id="phone" name="phone">
-
-                <label for="company">Company</label>
-                <input type="text" id="company" name="company">
-
-                <label for="message">Message</label>
-                <textarea id="message" name="message" rows="5"></textarea>
-
-                <button type="submit">Request a Quote</button>
-
-            </form>
-
-        </section>
+    <button id="quote-submit" type="submit">
+        Request a Quote
+    </button>
+</form>
 
     </main>
 

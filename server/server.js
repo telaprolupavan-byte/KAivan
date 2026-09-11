@@ -348,53 +348,61 @@ app.post("/api/quotes", async (req, res) => {
         const {
             name,
             email,
-            company,
             phone,
+            company,
+            stoneId,
+            quantity,
             message
         } = req.body;
 
-        if (
-            !name ||
-            !email ||
-            !phone ||
-            !message
-        ) {
+        if (!name || !email || !phone || !stoneId || !message) {
             return res.status(400).json({
                 error:
-                    "Name, email, phone, and message are required."
+                    "Name, email, phone, stone, and message are required."
             });
         }
 
+        const stone = await db.collection("stones").findOne({
+            id: stoneId
+        });
+
+        if (!stone) {
+            return res.status(400).json({
+                error: "Selected stone was not found."
+            });
+        }
+
+        const now = new Date().toISOString();
+
         const quote = {
-            name,
-            email,
-            company: company || "",
-            phone,
-            message,
-            createdAt: new Date().toISOString()
+            reference: `KAI-${Date.now().toString(36).toUpperCase()}`,
+            name: name.trim(),
+            email: email.trim(),
+            phone: phone.trim(),
+            company: company?.trim() || "",
+            stoneId: stone.id,
+            stoneName: stone.name,
+            quantity: quantity?.trim() || "",
+            message: message.trim(),
+            status: "new",
+            createdAt: now,
+            updatedAt: now
         };
 
-        const result = await db
-            .collection("quotes")
-            .insertOne(quote);
+        const result = await db.collection("quotes").insertOne(quote);
 
         return res.status(201).json({
-            message:
-                "Quote request received successfully.",
+            message: "Your quote request has been submitted successfully.",
             quote: {
-                id: result.insertedId,
+                _id: result.insertedId,
                 ...quote
             }
         });
     } catch (error) {
-        console.error(
-            "Failed to create quote:",
-            error
-        );
+        console.error("Failed to create quote:", error);
 
         return res.status(500).json({
-            error:
-                "Failed to create quote request"
+            error: "Failed to submit quote request."
         });
     }
 });
