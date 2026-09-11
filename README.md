@@ -156,22 +156,6 @@ quoteForm.addEventListener("submit", function (event) {
 
 ---
 
-## 🎓 Learning Objectives by Phase
-
-| Phase | Concept | What You Learn |
-|-------|---------|----------------|
-| 1-2 | HTML + CSS | Structure, styling, responsiveness |
-| 3 | Navigation | Event listeners, DOM manipulation, mobile patterns |
-| 4 | Arrays & Objects | Data structures, loops, template literals |
-| 5 | Functions | Code reuse, modularity, return values |
-| 6 | DOM Manipulation | Creating/removing elements, working with DOM tree |
-| 7 | Interactivity | Button events, data flow, state management |
-| 8 | Forms | Validation, error handling, user feedback |
-| 9 | Data & Logic | Separation of concerns, data modeling |
-| 10-11 | APIs & JSON | Fetching remote data, parsing responses |
-| 12 | Async JavaScript | Promises, timing, non-blocking code |
-| 13 | Backend Prep | Server integration, database concepts |
-
 ---
 
 ## 🎮 Interactive Console Commands
