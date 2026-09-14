@@ -381,3 +381,116 @@ button:hover {
         width: 100%;
     }
 }
+#quote-detail dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.quote-filters {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.quote-filters label {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#quote-status-filter {
+    min-width: 180px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: var(--white);
+    color: var(--dark);
+    font: inherit;
+    cursor: pointer;
+}
+
+#quote-status-filter:focus {
+    outline: 2px solid var(--dark);
+    outline-offset: 1px;
+}
+
+@media (max-width: 768px) {
+    .quote-filters {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    #quote-status-filter {
+        width: 100%;
+    }
+}
+.quote-summary {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.quote-summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 18px;
+    background: var(--white);
+    border-radius: 4px;
+}
+
+.quote-summary-item strong {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.quote-summary-item span {
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 1100px) {
+    .quote-summary {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .quote-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+.quote-status-badge {
+    display: inline-block;
+    width: fit-content;
+    margin-bottom: 14px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: var(--stone);
+    color: var(--dark);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.quote-status-badge.status-new {
+    background: #e8e0d2;
+}
+
+.quote-status-badge.status-in-progress {
+    background: #ddd9c9;
+}
+
+.quote-status-badge.status-quoted {
+    background: #d5dfd5;
+}
+
+.quote-status-badge.status-completed {
+    background: #cddbcf;
+}
+
+.quote-status-badge.status-cancelled {
+    background: #e2d2d0;
+}

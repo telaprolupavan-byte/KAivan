@@ -97,6 +97,11 @@ quantity.textContent = `Quantity: ${quote.quantity || "Not specified"}`;
     ];
 
     const currentStatus = quote.status || "new";
+    const statusBadge = document.createElement("span");
+statusBadge.className = `quote-status-badge status-${currentStatus}`;
+statusBadge.textContent = currentStatus
+    .replace("-", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 
     statuses.forEach((status) => {
         const option = document.createElement("option");
@@ -139,6 +144,7 @@ quantity.textContent = `Quantity: ${quote.quantity || "Not specified"}`;
     stone,
     quantity,
     statusContainer,
+    statusBadge,
     button
 );
 
@@ -178,10 +184,11 @@ async function updateQuoteStatus(quoteId, status, selectElement) {
         );
 
         if (quote) {
-            quote.status = status;
-        }
+    quote.status = status;
+    renderQuoteSummary();
+}
 
-        selectElement.dataset.previousStatus = status;
+selectElement.dataset.previousStatus = status;
 
     } catch (error) {
         console.error("Unable to update quote status:", error);
@@ -228,7 +235,68 @@ appendQuoteField(details, "Submitted", formatQuoteDate(quote.createdAt));
 appendQuoteField(details, "Last Updated", formatQuoteDate(quote.updatedAt));
     quoteDetail.append(heading, details);
 }
+function renderQuoteSummary() {
+    const summary = document.getElementById("quote-summary");
 
+    const counts = {
+        all: quotes.length,
+        new: 0,
+        "in-progress": 0,
+        quoted: 0,
+        completed: 0,
+        cancelled: 0
+    };
+
+    quotes.forEach((quote) => {
+        const status = quote.status || "new";
+
+        if (counts[status] !== undefined) {
+            counts[status]++;
+        }
+    });
+
+    summary.innerHTML = "";
+
+    const summaryItems = [
+        ["All", counts.all],
+        ["New", counts.new],
+        ["In Progress", counts["in-progress"]],
+        ["Quoted", counts.quoted],
+        ["Completed", counts.completed],
+        ["Cancelled", counts.cancelled]
+    ];
+
+    summaryItems.forEach(([label, count]) => {
+        const item = document.createElement("div");
+        item.className = "quote-summary-item";
+
+        const countElement = document.createElement("strong");
+        countElement.textContent = count;
+
+        const labelElement = document.createElement("span");
+        labelElement.textContent = label;
+
+        item.append(countElement, labelElement);
+        summary.appendChild(item);
+    });
+}
+function filterQuotesByStatus(status) {
+    if (status === "all") {
+        displayQuotes(quotes);
+        return;
+    }
+
+    const filteredQuotes = quotes.filter(
+        (quote) => (quote.status || "new") === status
+    );
+
+    if (filteredQuotes.length === 0) {
+        renderQuoteMessage("No quotes found with this status.");
+        return;
+    }
+
+    displayQuotes(filteredQuotes);
+}
 async function loadQuotesAsync() {
     renderQuoteMessage("Loading quote requests...");
 
@@ -250,6 +318,7 @@ async function loadQuotesAsync() {
         }
 
         displayQuotes(quotes);
+        renderQuoteSummary();
     } catch (error) {
         console.error("Unable to load quotes from API:", error);
         quotes = [];
@@ -301,6 +370,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     stoneCancel.addEventListener("click", resetStoneForm);
 
     loadStonesAsync();
+
+    const quoteStatusFilter = document.getElementById("quote-status-filter");
+    quoteStatusFilter.addEventListener("change", (event) => {
+        filterQuotesByStatus(event.target.value);
+    });
 
     const logoutButton = document.getElementById("logout-button");
 
@@ -499,17 +573,28 @@ async function loadStonesAsync() {
         }
 
         if (!response.ok) {
-            throw new Error(`Stone API request failed with status ${response.status}`);
+            throw new Error(
+                `Stone API request failed with status ${response.status}`
+            );
         }
 
         const data = await response.json();
 
-        stones = Array.isArray(data) ? data : data.stones || [];
+        stones = Array.isArray(data)
+            ? data
+            : Object.entries(data).map(([id, stone]) => ({
+                id,
+                ...stone
+            }));
 
         renderStoneList();
+
     } catch (error) {
         console.error("Unable to load stones:", error);
-        showStoneMessage("Unable to load stones. Please try again.", "error");
+        showStoneMessage(
+            "Unable to load stones. Please try again.",
+            "error"
+        );
     }
 }
 async function handleStoneSubmit(event) {
