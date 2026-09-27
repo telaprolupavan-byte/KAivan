@@ -1,6 +1,7 @@
 const { MongoStore } = require("connect-mongo");
 const loadConfig = require("./config");
 const { connectToDatabase, ensureIndexes } = require("./DB");
+const { createGridFsImageStore } = require("./images");
 const createApp = require("./app");
 
 async function startServer() {
@@ -17,7 +18,12 @@ async function startServer() {
         touchAfter: 60 * 60
     });
 
-    const app = createApp({ db, config, sessionStore });
+    const app = createApp({
+        db,
+        config,
+        sessionStore,
+        imageStore: createGridFsImageStore(db)
+    });
 
     const server = app.listen(config.port, () => {
         console.log(`Kaivan backend running on port ${config.port}`);

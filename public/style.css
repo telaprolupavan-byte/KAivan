@@ -1,9 +1,8 @@
-
 /* ========================================
    KAIVAN STONE — CSS STYLESHEET
    ======================================== */
 
-/* 1. CSS Variables — Design System */
+/* 1. Design System */
 
 :root {
     --cream: #f5f1e8;
@@ -11,15 +10,27 @@
     --dark: #1d1d1b;
     --white: #ffffff;
     --muted: #6f6b64;
-}
 
-/* Universal Selector */
+    --line: rgba(29, 29, 27, 0.12);
+    --shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    --radius: 4px;
+    --gutter: 6%;
+    --header-height: 76px;
+}
 
 * {
     box-sizing: border-box;
 }
 
-/* 2. Body */
+/* Component display rules (e.g. button { display: inline-flex }) must not un-hide [hidden]. */
+[hidden] {
+    display: none !important;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--header-height);
+}
 
 body {
     margin: 0;
@@ -27,9 +38,12 @@ body {
     color: var(--dark);
     font-family: Arial, sans-serif;
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* Typography System */
+img {
+    max-width: 100%;
+}
 
 h1,
 h2,
@@ -39,7 +53,7 @@ p {
 }
 
 h1 {
-    font-size: clamp(56px, 8vw, 110px);
+    font-size: clamp(52px, 7vw, 104px);
     line-height: 0.95;
     letter-spacing: -4px;
 }
@@ -55,267 +69,387 @@ h3 {
     line-height: 1.2;
 }
 
-p {
-    line-height: 1.6;
+a {
+    color: inherit;
+}
+
+:focus-visible {
+    outline: 2px solid var(--dark);
+    outline-offset: 3px;
+}
+
+.eyebrow,
+.section-heading p:first-child {
+    margin-bottom: 15px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    z-index: 100;
+    padding: 10px 16px;
+    background: var(--dark);
+    color: var(--white);
+    text-decoration: none;
+}
+
+.skip-link:focus {
+    top: 16px;
+}
+
+/* 2. Buttons */
+
+.button {
+    display: inline-block;
+    padding: 15px 28px;
+    border: 1px solid var(--dark);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+        transform 0.25s ease,
+        background-color 0.25s ease,
+        color 0.25s ease;
+}
+
+.button:hover {
+    transform: translateY(-3px);
+}
+
+.button-primary {
+    background: var(--dark);
+    color: var(--white);
+}
+
+.button-outline {
+    background: transparent;
+    color: var(--dark);
+}
+
+.button-outline:hover {
+    background: var(--dark);
+    color: var(--white);
 }
 
 /* 3. Header & Navigation */
 
-header {
-    padding: 24px 6%;
-    position: relative;
-    z-index: 10;
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 0 var(--gutter);
+    background: rgba(245, 241, 232, 0.92);
+    border-bottom: 1px solid transparent;
+    backdrop-filter: blur(10px);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.site-header.scrolled {
+    border-bottom-color: var(--line);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
 nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    min-height: var(--header-height);
 }
 
-nav > a {
+.brand {
+    color: var(--dark);
     font-size: 20px;
     font-weight: 700;
     letter-spacing: 2px;
-}
-
-nav div {
-    display: flex;
-    gap: 30px;
-}
-
-nav a {
-    color: var(--dark);
     text-decoration: none;
 }
-
-nav div a:hover {
-    opacity: 0.6;
-}
-
-/* Mobile Menu Button */
-
-#menu-button {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 28px;
-    cursor: pointer;
-    color: var(--dark);
-    padding: 0;
-}
-
-/* Nav Links */
 
 .nav-links {
     display: flex;
+    align-items: center;
     gap: 30px;
 }
 
-/* 4. Hero Section */
-
-#hero {
+.nav-links a {
     position: relative;
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 80px 6%;
-    background-image: url("images/hero.jpg");
-    background-size: cover;
-    background-position: center;
-    color: var(--white);
-}
-
-#hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-}
-
-#hero > * {
-    position: relative;
-    z-index: 1;
-}
-
-#hero p:first-child {
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    font-size: 13px;
-    color: var(--white);
-    opacity: 0.9;
-}
-
-#hero h1 {
-    max-width: 850px;
-    margin: 20px 0;
-    font-size: clamp(56px, 8vw, 110px);
-    line-height: 0.95;
-    letter-spacing: -4px;
-    color: var(--white);
-}
-
-#hero p:nth-of-type(2) {
-    max-width: 600px;
-    font-size: 20px;
-    color: var(--white);
-    opacity: 0.95;
-}
-
-/* 4a. Hero Buttons */
-
-#hero a,
-form button {
-    transition:
-        transform 0.25s ease,
-        background-color 0.25s ease,
-        color 0.25s ease,
-        opacity 0.25s ease;
-}
-
-#hero a {
-    display: inline-block;
-    padding: 14px 24px;
-    margin-right: 10px;
-    margin-top: 20px;
-    background-color: var(--white);
     color: var(--dark);
     text-decoration: none;
 }
 
-#hero a:hover {
-    transform: translateY(-3px);
+.nav-links a:not(.nav-cta)::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 100%;
+    height: 1px;
+    background: var(--dark);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
 }
 
-#hero a:last-of-type {
-    background-color: transparent;
-    color: var(--white);
-    border: 1px solid var(--white);
+.nav-links a:not(.nav-cta):hover::after,
+.nav-links a.active::after {
+    transform: scaleX(1);
 }
 
-/* 5. Section Headings & Spacing */
+.nav-cta {
+    padding: 10px 18px;
+    background: var(--dark);
+    color: var(--white) !important;
+    font-weight: 600;
+    transition: opacity 0.25s ease;
+}
+
+.nav-cta:hover {
+    opacity: 0.85;
+}
+
+#menu-button {
+    display: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.menu-icon,
+.menu-icon::before,
+.menu-icon::after {
+    display: block;
+    width: 24px;
+    height: 2px;
+    margin: 0 auto;
+    background: var(--dark);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.menu-icon {
+    position: relative;
+}
+
+.menu-icon::before,
+.menu-icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+}
+
+.menu-icon::before {
+    top: -7px;
+}
+
+.menu-icon::after {
+    top: 7px;
+}
+
+#menu-button[aria-expanded="true"] .menu-icon {
+    background: transparent;
+}
+
+#menu-button[aria-expanded="true"] .menu-icon::before {
+    transform: translateY(7px) rotate(45deg);
+}
+
+#menu-button[aria-expanded="true"] .menu-icon::after {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* 4. Sections */
+
+section {
+    padding: 120px var(--gutter);
+}
 
 .section-heading {
     max-width: 750px;
     margin-bottom: 60px;
 }
 
-.section-heading p:first-child {
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    font-size: 12px;
-    color: var(--muted);
-}
-
 .section-heading h2 {
     margin-bottom: 20px;
 }
 
-section {
-    padding: 120px 6%;
+.section-heading p:last-child:not(:first-child) {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 18px;
 }
 
-/* 6. Collection Section */
+/* 5. Hero */
+
+#hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: 48px;
+    min-height: calc(88vh - var(--header-height));
+    padding-top: 60px;
+    padding-bottom: 80px;
+}
+
+.hero-content h1 {
+    max-width: 640px;
+    margin: 0 0 24px;
+}
+
+.hero-lead {
+    max-width: 520px;
+    margin-bottom: 36px;
+    color: var(--muted);
+    font-size: 20px;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.hero-logo {
+    overflow: hidden;
+    background: var(--cream);
+    border: 1px solid var(--line);
+}
+
+.hero-logo img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* 6. Collection */
 
 #collection {
-    padding: 100px 6%;
+    padding: 100px var(--gutter);
+    background: var(--white);
 }
 
-#collection > div {
+.collection-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
 }
 
-/* 6a. Stone Cards */
-
-#collection article {
-    background: var(--white);
+.stone-card {
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
+    background: var(--cream);
     transition:
         transform 0.3s ease,
         box-shadow 0.3s ease;
 }
 
-#collection article:hover {
+.stone-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow);
 }
 
-#collection article img {
-    width: 100%;
-    height: 340px;
-    object-fit: cover;
+.stone-card-media {
+    position: relative;
     display: block;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    background: var(--stone);
+    cursor: pointer;
+    aspect-ratio: 4 / 3;
+}
+
+.stone-card-media:disabled {
+    cursor: default;
+}
+
+.stone-card-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     transition: transform 0.6s ease;
 }
 
-#collection article:hover img {
+.stone-card:hover .stone-card-media img {
     transform: scale(1.04);
 }
 
-#collection article h3 {
+.stone-card-media .stone-stock {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+}
+
+.stone-card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 6px;
     padding: 22px;
+}
+
+.stone-card-body h3 {
     margin: 0;
 }
 
-.collection-status {
-    grid-column: 1 / -1;
+.stone-origin {
     margin: 0;
-    padding: 24px;
-    background: var(--white);
     color: var(--muted);
+    font-size: 14px;
 }
 
-/* Stone Buttons */
+.stone-price {
+    margin: 0;
+    color: #d9534f;
+    font-size: 18px;
+    font-weight: 600;
+}
 
 .stone-button {
-    width: calc(100% - 44px);
-    margin: 0 22px 22px 22px;
+    width: 100%;
+    margin-top: auto;
     padding: 12px 20px;
     background-color: var(--dark);
     color: var(--white);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius);
     cursor: pointer;
+    font: inherit;
     font-weight: 600;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    transition: background-color 0.3s ease;
+}
+
+.stone-card-body .stone-price + .stone-button {
+    margin-top: 16px;
 }
 
 .stone-button:hover:not(:disabled) {
     background-color: var(--muted);
-    transform: translateY(-2px);
 }
 
 .stone-button:disabled {
     background-color: #cccccc;
+    color: var(--dark);
     cursor: not-allowed;
     opacity: 0.6;
 }
 
-/* Stone Price */
-
-.stone-price {
-    padding: 0 22px;
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #d9534f;
-}
-
-/* Stone Stock Status */
-
 .stone-stock {
     display: inline-block;
-    margin: 0 22px;
+    width: fit-content;
     padding: 6px 12px;
-    border-radius: 4px;
+    border-radius: var(--radius);
     font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
     letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 .in-stock {
@@ -328,62 +462,166 @@ section {
     color: #721c24;
 }
 
-/* Stone Info Display */
-
-#stone-info {
-    margin-top: 60px;
-    padding: 40px;
-    background-color: var(--white);
-    border-radius: 8px;
-}
-
-#stone-info h3 {
-    margin-top: 0;
-    font-size: 28px;
-}
-
-#stone-info p {
+.collection-status {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 24px;
+    background: var(--cream);
     color: var(--muted);
-    font-size: 16px;
 }
 
-/* Stone Detail View */
+/* Loading skeletons */
+
+.stone-card.skeleton {
+    pointer-events: none;
+}
+
+.skeleton .stone-card-media,
+.skeleton-line {
+    background: linear-gradient(90deg, var(--stone) 25%, var(--cream) 50%, var(--stone) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease infinite;
+}
+
+.skeleton-line {
+    height: 14px;
+    border-radius: var(--radius);
+}
+
+.skeleton-line.short {
+    width: 40%;
+}
+
+@keyframes shimmer {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+/* 6a. Stone detail dialog */
+
+#stone-dialog {
+    width: min(960px, calc(100% - 32px));
+    max-height: calc(100% - 32px);
+    padding: 0;
+    border: none;
+    background: var(--white);
+    color: var(--dark);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+}
+
+#stone-dialog::backdrop {
+    background: rgba(29, 29, 27, 0.6);
+    backdrop-filter: blur(2px);
+}
+
+#stone-dialog[open] {
+    animation: dialog-in 0.25s ease;
+}
+
+@keyframes dialog-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dialog-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--dark);
+    cursor: pointer;
+    font-size: 26px;
+    line-height: 1;
+}
+
+.dialog-close:hover {
+    background: var(--cream);
+}
 
 .stone-detail {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.stone-detail-media {
+    min-height: 100%;
+    background: var(--stone);
+}
+
+.stone-detail-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    object-fit: cover;
+}
+
+.stone-detail-info {
+    padding: 44px 40px 40px;
+}
+
+.stone-detail-info h3 {
+    margin: 12px 0 16px;
+    font-size: 32px;
+    letter-spacing: -1px;
 }
 
 .stone-desc {
-    font-size: 16px;
+    margin-bottom: 28px;
     color: var(--muted);
-    margin-bottom: 30px;
+    font-size: 16px;
     line-height: 1.8;
 }
 
 .stone-meta {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0 0 28px;
 }
 
-.stone-meta p {
-    margin: 0;
-    padding: 12px;
+.stone-meta div {
+    padding: 12px 14px;
     background-color: var(--cream);
-    border-radius: 4px;
+    border-radius: var(--radius);
 }
 
-.stone-meta strong {
-    color: var(--dark);
+.stone-meta div.full {
+    grid-column: 1 / -1;
+}
+
+.stone-meta dt {
+    margin-bottom: 2px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.stone-meta dd {
+    margin: 0;
     font-weight: 600;
 }
 
-/* Certification Badges */
-
 .cert-badge {
     display: inline-block;
-    margin: 4px 4px 4px 0;
+    margin: 4px 4px 0 0;
     padding: 6px 12px;
     background-color: #e8f4f8;
     color: #0c5460;
@@ -392,37 +630,56 @@ section {
     font-weight: 600;
 }
 
-/* 7. About Section (Complete Control) */
+.stone-quote-button {
+    width: 100%;
+    padding: 15px 22px;
+    border: none;
+    background: var(--dark);
+    color: var(--white);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    transition: opacity 0.2s ease;
+}
+
+.stone-quote-button:hover {
+    opacity: 0.85;
+}
+
+/* 7. About */
 
 #about {
     background-color: var(--stone);
 }
 
-.section-heading {
-    max-width: 700px;
-    margin-bottom: 50px;
-}
-
 .about-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 30px;
 }
 
 .about-grid article {
     padding: 35px;
     background: rgba(255, 255, 255, 0.55);
+    border-top: 2px solid var(--dark);
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.about-grid article h3 {
-    margin-top: 0;
+.about-grid article:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-4px);
 }
 
-/* 8. Logistics Section */
+.about-grid article p {
+    margin-bottom: 0;
+    color: var(--muted);
+}
+
+/* 8. Logistics */
 
 .logistics-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 30px;
 }
 
@@ -431,251 +688,309 @@ section {
     border-top: 1px solid var(--dark);
 }
 
-.logistics-grid article h3 {
-    margin: 10px 0;
+.step-number {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--muted);
+    font-size: 28px;
+    font-weight: 700;
 }
 
-.logistics-grid article h3:first-child {
-    font-size: 28px;
+.logistics-grid article h3 {
+    margin: 0 0 10px;
+}
+
+.logistics-grid article p {
+    margin-bottom: 0;
     color: var(--muted);
 }
 
-/* 9. Statistics Section */
+/* 9. Statistics */
 
 #stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 40px;
-    padding: 100px 6%;
+    padding: 100px var(--gutter);
     background: var(--stone);
     text-align: center;
 }
 
-#stats div {
+.stat {
     padding: 20px;
+}
+
+.stat + .stat {
+    border-left: 1px solid var(--line);
 }
 
 #stats strong {
     display: block;
     font-size: clamp(48px, 6vw, 80px);
     line-height: 1;
+    letter-spacing: -2px;
 }
 
 #stats span {
     display: block;
     margin-top: 15px;
     color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 13px;
 }
 
-/* 10. Contact Section */
+/* 10. Contact & Quote Form */
 
 #contact {
-    padding: 120px 6%;
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 64px;
+    padding: 120px var(--gutter);
     background: var(--dark);
     color: var(--white);
 }
 
-#contact p {
+#contact .eyebrow {
+    color: var(--stone);
+}
+
+#contact h2 {
+    margin-bottom: 20px;
+}
+
+.contact-intro > p:not(.eyebrow) {
     color: #c9c5bd;
+    font-size: 18px;
 }
 
-#contact form {
-    margin-top: 50px;
-    max-width: 650px;
+.contact-points {
+    margin: 36px 0 0;
+    padding: 0;
+    list-style: none;
 }
 
-#contact form label {
-    display: block;
-    margin-top: 20px;
-    font-weight: 600;
+.contact-points li {
+    padding: 14px 0 14px 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    color: #c9c5bd;
+    position: relative;
+}
+
+.contact-points li::before {
+    content: "";
+    position: absolute;
+    top: 22px;
+    left: 0;
+    width: 14px;
+    height: 1px;
+    background: var(--stone);
+}
+
+#quote-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 24px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-field-full,
+.form-footer {
+    grid-column: 1 / -1;
+}
+
+#quote-form label {
     color: var(--white);
+    font-size: 14px;
+    font-weight: 600;
 }
 
-/* Form Message Display */
+#quote-form label span {
+    color: var(--stone);
+}
+
+#quote-form input,
+#quote-form select,
+#quote-form textarea {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid #c9c5bc;
+    border-radius: 0;
+    background: var(--white);
+    color: var(--dark);
+    font: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#quote-form input::placeholder,
+#quote-form textarea::placeholder {
+    color: #8f8a82;
+}
+
+#quote-form input:focus,
+#quote-form select:focus,
+#quote-form textarea:focus {
+    outline: none;
+    border-color: var(--stone);
+    box-shadow: 0 0 0 3px rgba(216, 209, 196, 0.45);
+}
+
+#quote-form [aria-invalid="true"] {
+    border-color: #d32f2f;
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.25);
+}
+
+#quote-form textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.form-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+}
+
+#quote-form button {
+    padding: 15px 32px;
+    border: 1px solid var(--white);
+    background: var(--white);
+    color: var(--dark);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+#quote-form button:hover:not(:disabled) {
+    transform: translateY(-3px);
+}
+
+#quote-form button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.form-note {
+    margin: 0;
+    color: #8f8a82;
+    font-size: 13px;
+}
 
 #form-message {
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 4px;
+    margin-top: 24px;
+    padding: 16px 18px;
+    border-left: 4px solid var(--stone);
+    background: var(--white);
+    color: var(--dark);
     font-weight: 600;
-    min-height: 20px;
 }
 
 #form-message:empty {
     display: none;
 }
 
-#contact form input,
-#contact form textarea {
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: 8px;
-    padding: 15px;
-    border: 1px solid #555;
-    background: transparent;
-    color: var(--white);
-    font: inherit;
+#form-message.success {
+    border-left-color: #3d6b45;
 }
 
-#contact form input::placeholder,
-#contact form textarea::placeholder {
-    color: #888;
+#form-message.error {
+    border-left-color: #d32f2f;
 }
 
-#contact form input:focus,
-#contact form textarea:focus {
-    outline: 2px solid #aaa;
-}
-
-#contact form textarea {
-    min-height: 160px;
-    resize: vertical;
-}
-
-form button {
-    margin-top: 25px;
-    padding: 15px 28px;
-    border: none;
-    background-color: var(--white);
-    color: var(--dark);
-    cursor: pointer;
-    font-weight: 600;
-}
-
-form button:hover {
-    transform: translateY(-3px);
-    opacity: 0.85;
-}
-
-<<<<<<< Updated upstream
-/* Quote Request Display */
-
-.quote-requests {
-    margin-top: 80px;
-}
-
-.quote-requests > h3,
-#quote-detail h3 {
-    font-size: 28px;
-    margin-bottom: 24px;
-}
-
-#quote-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-}
-
-.quote-card,
-.quote-status,
-#quote-detail {
-    margin: 0;
-    padding: 24px;
-    background: var(--white);
-    color: var(--dark);
-    border-radius: 4px;
-}
-
-.quote-card h4 {
-    margin: 0 0 18px;
-    font-size: 20px;
-}
-
-.quote-card dl {
-    display: grid;
-    grid-template-columns: max-content minmax(0, 1fr);
-    gap: 8px 14px;
-    margin: 0;
-}
-
-.quote-card dt {
-    font-weight: 600;
-}
-
-.quote-card dd {
-    margin: 0;
-    overflow-wrap: anywhere;
-}
-
-.quote-detail-button {
-    margin-top: 18px;
-    padding: 10px 16px;
-    border: 1px solid var(--dark);
-    background: var(--dark);
-    color: var(--white);
-    cursor: pointer;
-    font: inherit;
-    font-weight: 600;
-}
-
-.quote-detail-button:hover {
-    background: var(--muted);
-}
-
-.quote-status {
-    grid-column: 1 / -1;
-    color: var(--muted);
-}
-
-#quote-detail {
-    margin-top: 24px;
-}
-
-#quote-detail h3 {
-    margin-top: 0;
-}
-
-#quote-detail p {
-    color: var(--muted);
-}
-
-#quote-detail dl {
-    display: grid;
-    grid-template-columns: max-content minmax(0, 1fr);
-    gap: 8px 14px;
-    margin: 0;
-}
-
-#quote-detail dt {
-    font-weight: 600;
-}
-
-#quote-detail dd {
-    margin: 0;
-    overflow-wrap: anywhere;
-}
-=======
->>>>>>> Stashed changes
 /* 11. Footer */
 
 footer {
-    padding: 50px 6%;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px 40px;
+    align-items: center;
+    padding: 56px var(--gutter) 32px;
     background: #111;
-    color: white;
+    color: var(--white);
 }
 
 footer h2 {
     margin: 0;
     font-size: 24px;
+    letter-spacing: 1px;
 }
 
-footer p {
-    margin: 10px 0;
+.footer-brand p {
+    margin: 8px 0 0;
     color: #aaa;
 }
 
-/* 12. Responsive Design — Mobile */
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+}
 
-@media (max-width: 768px) {
+.footer-links a {
+    color: #ccc;
+    text-decoration: none;
+}
 
-    header {
-        padding: 20px;
+.footer-links a:hover {
+    color: var(--white);
+}
+
+.footer-copy {
+    grid-column: 1 / -1;
+    margin: 16px 0 0;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #888;
+    font-size: 13px;
+}
+
+/* 12. Scroll reveal */
+
+.reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* 13. Responsive */
+
+@media (max-width: 1024px) {
+    .collection-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    nav {
-        flex-direction: row;
-        align-items: center;
-        gap: 0;
+    #hero {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        min-height: auto;
+    }
+
+    .hero-logo {
+        order: -1;
+        max-width: 720px;
+    }
+
+    #contact {
+        grid-template-columns: 1fr;
+        gap: 48px;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --header-height: 64px;
     }
 
     #menu-button {
@@ -689,10 +1004,12 @@ footer p {
         left: 0;
         right: 0;
         flex-direction: column;
-        background: var(--white);
-        border-bottom: 1px solid #eee;
-        gap: 15px;
-        padding: 20px;
+        align-items: stretch;
+        gap: 0;
+        padding: 12px 20px 20px;
+        background: var(--cream);
+        border-bottom: 1px solid var(--line);
+        box-shadow: 0 16px 24px rgba(0, 0, 0, 0.06);
     }
 
     .nav-links.open {
@@ -700,175 +1017,83 @@ footer p {
     }
 
     .nav-links a {
-        padding: 12px 0;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--line);
     }
 
-    section {
+    .nav-links a:not(.nav-cta)::after {
+        display: none;
+    }
+
+    .nav-links .nav-cta {
+        margin-top: 12px;
+        padding: 14px;
+        border-bottom: none;
+        text-align: center;
+    }
+
+    section,
+    #collection,
+    #contact {
         padding: 80px 20px;
     }
 
-    #hero {
-        min-height: 75vh;
-        padding: 60px 20px;
+    .site-header,
+    footer {
+        padding-left: 20px;
+        padding-right: 20px;
     }
 
-    #hero h1 {
-        font-size: 52px;
+    #hero {
+        padding-top: 32px;
+        padding-bottom: 64px;
+    }
+
+    h1 {
         letter-spacing: -2px;
     }
 
-    #hero p:nth-of-type(2) {
+    .hero-lead {
         font-size: 17px;
     }
 
-    #hero a {
-        margin-right: 5px;
-        margin-bottom: 10px;
+    .hero-actions .button {
+        flex: 1 1 auto;
+        text-align: center;
     }
 
-    #collection > div,
+    .section-heading {
+        margin-bottom: 40px;
+    }
+
+    .collection-grid,
     .about-grid,
     .logistics-grid {
         grid-template-columns: 1fr;
     }
 
-    #collection article img {
-        height: 280px;
+    .stone-detail {
+        grid-template-columns: 1fr;
+    }
+
+    .stone-detail-media img {
+        min-height: 0;
+        aspect-ratio: 4 / 3;
+    }
+
+    .stone-detail-info {
+        padding: 28px 22px 24px;
     }
 
     #stats {
         grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 70px 20px;
+        gap: 0;
+        padding: 60px 20px;
     }
 
-}
-/* =========================================
-   QUOTE FORM - KAIVAN 018
-   ========================================= */
-
-#contact {
-    padding: 100px 8%;
-}
-
-#contact h2 {
-    margin-bottom: 12px;
-}
-
-#contact > p {
-    margin-bottom: 40px;
-    color: #666;
-}
-
-#quote-form {
-    max-width: 1000px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 28px 32px;
-}
-
-#quote-form label {
-    display: block;
-    margin-bottom: 10px;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-#quote-form input,
-#quote-form select,
-#quote-form textarea {
-    width: 100%;
-    box-sizing: border-box;
-}
-
-#quote-form label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-#quote-form input,
-#quote-form select,
-#quote-form textarea {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 14px 15px;
-    border: 1px solid #c9c5bc;
-    background: #ffffff;
-    color: #1d1d1b;
-    font: inherit;
-    border-radius: 0;
-}
-
-#quote-form input:focus,
-#quote-form select:focus,
-#quote-form textarea:focus {
-    outline: none;
-    border-color: #1d1d1b;
-}
-
-#quote-form textarea {
-    min-height: 150px;
-    resize: vertical;
-}
-
-#quote-form button {
-    grid-column: 1 / -1;
-    width: fit-content;
-    padding: 15px 28px;
-    border: none;
-    background: #1d1d1b;
-    color: #ffffff;
-    font: inherit;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-}
-
-#quote-form button:hover {
-    opacity: 0.85;
-}
-
-#quote-form button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-#form-message {
-    min-height: 24px;
-    margin-bottom: 20px;
-    font-size: 15px;
-}
-
-.stone-quote-button {
-    margin-top: 24px;
-    padding: 14px 22px;
-    border: none;
-    background: #1d1d1b;
-    color: #ffffff;
-    cursor: pointer;
-    font: inherit;
-    transition: opacity 0.2s ease;
-}
-
-.stone-quote-button:hover {
-    opacity: 0.85;
-}
-
-.stone-quote-button:focus-visible {
-    outline: 2px solid #1d1d1b;
-    outline-offset: 3px;
-}
-
-
-/* =========================================
-   MOBILE QUOTE FORM
-   ========================================= */
-
-@media (max-width: 700px) {
-    #contact {
-        padding: 70px 6%;
+    .stat + .stat {
+        border-left: none;
+        border-top: 1px solid var(--line);
     }
 
     #quote-form {
@@ -876,7 +1101,48 @@ footer p {
     }
 
     #quote-form button {
-        grid-column: auto;
         width: 100%;
     }
+
+    footer {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .reveal {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* 14. 404 page */
+
+.not-found {
+    min-height: calc(100vh - var(--header-height));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.not-found h1 {
+    margin-bottom: 20px;
+}
+
+.not-found p:not(.eyebrow) {
+    margin-bottom: 32px;
+    color: var(--muted);
+    font-size: 18px;
 }

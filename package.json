@@ -12,7 +12,7 @@
     "test": "node --test test/*.test.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.9"
   },
   "repository": {
     "type": "git",
@@ -34,7 +34,9 @@
     "express-rate-limit": "^8.7.0",
     "express-session": "^1.19.0",
     "helmet": "^8.3.0",
-    "mongodb": "^7.6.0"
+    "mongodb": "^7.6.0",
+    "multer": "^2.4.0",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "supertest": "^7.3.0"

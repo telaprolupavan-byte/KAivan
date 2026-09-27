@@ -9,37 +9,46 @@
 </head>
 <body>
 
-    <main>
-        <h1>Kaivan Admin</h1>
-        <h2>Login</h2>
+    <main class="login-page">
+        <div class="login-card">
+            <a class="login-brand" href="/">Kaivan Stone</a>
 
-        <form id="login-form">
-            <div>
-                <label for="username">Username</label>
-                <input
-                    id="username"
-                    type="text"
-                    name="username"
-                    autocomplete="username"
-                    required
-                >
+            <div class="section-heading">
+                <p>Kaivan Admin</p>
+                <h1>Login</h1>
             </div>
 
-            <div>
-                <label for="password">Password</label>
-                <input
-                    id="password"
-                    type="password"
-                    name="password"
-                    autocomplete="current-password"
-                    required
-                >
-            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input
+                        id="username"
+                        type="text"
+                        name="username"
+                        autocomplete="username"
+                        autofocus
+                        required
+                    >
+                </div>
 
-            <button type="submit">Login</button>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        id="password"
+                        type="password"
+                        name="password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
 
-            <p id="login-error" role="alert"></p>
-        </form>
+                <p id="login-error" role="alert"></p>
+
+                <button type="submit" id="login-submit">Login</button>
+            </form>
+
+            <a class="login-back" href="/">← Back to website</a>
+        </div>
     </main>
 
     <script src="admin-login.js"></script>

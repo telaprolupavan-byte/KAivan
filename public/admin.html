@@ -12,13 +12,20 @@
 <body>
 
     <header class="admin-header">
-        <a href="/">Kaivan Stone</a>
-        <p>Internal Admin Dashboard</p>
+        <div class="admin-brand">
+            <a href="/">Kaivan Stone</a>
+            <p>Internal Admin Dashboard</p>
+        </div>
+
+        <nav class="admin-nav" aria-label="Dashboard">
+            <a href="#stone-management-heading">Stones</a>
+            <a href="#quote-requests-heading">Quotes</a>
+            <a href="/" target="_blank" rel="noopener">View Site ↗</a>
+            <button id="logout-button" type="button" class="button-ghost-light">Logout</button>
+        </nav>
     </header>
 
     <main class="admin-main">
-
-        <button id="logout-button" type="button">Logout</button>
 
         <!-- =========================
              STONE MANAGEMENT
@@ -31,130 +38,195 @@
                 <h1 id="stone-management-heading">Manage Stones</h1>
             </div>
 
-            <div
-                id="stone-message"
-                class="admin-message"
-                role="status"
-                aria-live="polite">
-            </div>
+            <div class="stone-layout">
 
-            <form id="stone-form">
+                <form id="stone-form" class="panel" novalidate>
 
-                <input type="hidden" id="stone-edit-id">
-
-                <div class="form-grid">
-
-                    <div>
-                        <label for="stone-id">Stone ID</label>
-                        <input
-                            type="text"
-                            id="stone-id"
-                            required>
+                    <div class="panel-header">
+                        <h2 id="stone-form-title">Add a Stone</h2>
+                        <p>Fields marked * are required.</p>
                     </div>
 
-                    <div>
-                        <label for="stone-name">Name</label>
-                        <input
-                            type="text"
-                            id="stone-name"
-                            required>
-                    </div>
+                    <div id="stone-message" class="admin-message" role="status" aria-live="polite"></div>
 
-                    <div>
-                        <label for="stone-origin">Origin</label>
-                        <input
-                            type="text"
-                            id="stone-origin"
-                            required>
-                    </div>
+                    <!-- Photo upload -->
+                    <div class="form-group">
+                        <span class="field-label" id="stone-photo-label">Photo</span>
 
-                    <div>
-                        <label for="stone-price">Price</label>
-                        <input
-                            type="text"
-                            id="stone-price"
-                            required>
-                    </div>
+                        <div class="image-field" id="image-dropzone" aria-labelledby="stone-photo-label">
 
-                    <div>
-                        <label for="stone-dimensions">Dimensions</label>
-                        <input
-                            type="text"
-                            id="stone-dimensions"
-                            required>
-                    </div>
+                            <div class="image-preview" id="image-preview" hidden>
+                                <img id="image-preview-img" alt="Selected stone photo preview">
+                            </div>
 
-                    <div>
-                        <label for="stone-rating">Rating</label>
-                        <input
-                            type="number"
-                            id="stone-rating"
-                            min="0"
-                            max="5"
-                            step="0.1">
-                    </div>
+                            <div class="image-placeholder" id="image-placeholder">
+                                <span class="image-placeholder-icon" aria-hidden="true"></span>
+                                <p><strong>Drag &amp; drop a photo</strong> or choose a file</p>
+                                <p class="hint">JPEG, PNG, WebP, GIF or AVIF · up to 8 MB · resized automatically</p>
+                            </div>
 
-                    <div>
-                        <label for="stone-image">Image</label>
-                        <input
-                            type="text"
-                            id="stone-image">
-                    </div>
+                            <div class="image-actions">
+                                <label class="button-secondary file-button" for="stone-image-file">
+                                    <span id="image-choose-label">Choose Photo</span>
+                                </label>
+                                <input
+                                    type="file"
+                                    id="stone-image-file"
+                                    accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                                    class="visually-hidden">
 
-                    <div class="checkbox-field">
-                        <label for="stone-in-stock">
+                                <button type="button" id="image-remove" class="button-link" hidden>
+                                    Remove Photo
+                                </button>
+                            </div>
+                        </div>
+
+                        <details class="image-path-toggle">
+                            <summary>Use an image path or URL instead</summary>
                             <input
-                                type="checkbox"
-                                id="stone-in-stock"
-                                checked>
-                            In Stock
+                                type="text"
+                                id="stone-image"
+                                maxlength="500"
+                                placeholder="images/steel-grey.jpg or https://…">
+                        </details>
+                    </div>
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label for="stone-id">Stone ID *</label>
+                            <input
+                                type="text"
+                                id="stone-id"
+                                maxlength="64"
+                                placeholder="e.g. steel-grey"
+                                pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                                required>
+                            <small class="hint">Lowercase letters, numbers and hyphens. Cannot be changed later.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stone-name">Name *</label>
+                            <input
+                                type="text"
+                                id="stone-name"
+                                maxlength="100"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stone-origin">Origin *</label>
+                            <input
+                                type="text"
+                                id="stone-origin"
+                                maxlength="100"
+                                placeholder="e.g. India"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stone-price">Price *</label>
+                            <input
+                                type="text"
+                                id="stone-price"
+                                maxlength="50"
+                                placeholder="e.g. $45/sq ft"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stone-dimensions">Dimensions *</label>
+                            <input
+                                type="text"
+                                id="stone-dimensions"
+                                maxlength="100"
+                                placeholder="e.g. 12x12 tiles"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stone-rating">Rating (0–5)</label>
+                            <input
+                                type="number"
+                                id="stone-rating"
+                                min="0"
+                                max="5"
+                                step="0.1">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="stone-description">Description *</label>
+                            <textarea
+                                id="stone-description"
+                                rows="4"
+                                maxlength="2000"
+                                required></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="stone-certifications">Certifications</label>
+                            <input
+                                type="text"
+                                id="stone-certifications"
+                                placeholder="Example: ISO 9001, CE, ASTM">
+                            <small class="hint">Separate with commas.</small>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="toggle" for="stone-in-stock">
+                                <input
+                                    type="checkbox"
+                                    id="stone-in-stock"
+                                    checked>
+                                <span class="toggle-track" aria-hidden="true"></span>
+                                <span>In Stock</span>
+                            </label>
+                        </div>
+
+                    </div>
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            id="stone-submit">
+                            Add Stone
+                        </button>
+
+                        <button
+                            type="button"
+                            id="stone-cancel"
+                            class="button-secondary"
+                            hidden>
+                            Cancel Edit
+                        </button>
+
+                    </div>
+
+                </form>
+
+                <div class="stone-list-panel">
+
+                    <div class="list-toolbar">
+                        <div>
+                            <h2>Catalog</h2>
+                            <p id="stone-count" class="muted">Loading…</p>
+                        </div>
+
+                        <label class="search-field" for="stone-search">
+                            <span class="visually-hidden">Search stones</span>
+                            <input type="search" id="stone-search" placeholder="Search stones…">
                         </label>
                     </div>
 
-                </div>
-
-                <div>
-                    <label for="stone-description">Description</label>
-                    <textarea
-                        id="stone-description"
-                        rows="5"
-                        required></textarea>
-                </div>
-
-                <div>
-                    <label for="stone-certifications">
-                        Certifications
-                    </label>
-
-                    <input
-                        type="text"
-                        id="stone-certifications"
-                        placeholder="Example: ISO, CE, ASTM">
-                </div>
-
-                <div class="form-actions">
-
-                    <button
-                        type="submit"
-                        id="stone-submit">
-                        Add Stone
-                    </button>
-
-                    <button
-                        type="button"
-                        id="stone-cancel"
-                        hidden>
-                        Cancel Edit
-                    </button>
+                    <div
+                        id="stone-list"
+                        class="stone-list"
+                        aria-live="polite">
+                    </div>
 
                 </div>
 
-            </form>
-
-            <div
-                id="stone-list"
-                class="stone-list"
-                aria-live="polite">
             </div>
 
         </section>
@@ -174,41 +246,41 @@
                     Quote Requests
                 </h1>
             </div>
-<div id="quote-summary" class="quote-summary" aria-live="polite"></div>
-            
-            <div class="quote-filters">
-    <label for="quote-status-filter">Filter by Status</label>
 
-    <select id="quote-status-filter">
-        <option value="all">All Quotes</option>
-        <option value="new">New</option>
-        <option value="in-progress">In Progress</option>
-        <option value="quoted">Quoted</option>
-        <option value="completed">Completed</option>
-        <option value="cancelled">Cancelled</option>
-    </select>
-</div>
+            <div id="quote-summary" class="quote-summary" aria-live="polite"></div>
+
+            <div class="quote-filters">
+                <label for="quote-status-filter">Filter by Status</label>
+
+                <select id="quote-status-filter">
+                    <option value="all">All Quotes</option>
+                    <option value="new">New</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="quoted">Quoted</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+
+                <button type="button" id="quote-refresh" class="button-secondary">Refresh</button>
+            </div>
 
             <div
                 id="quote-list"
                 aria-live="polite">
             </div>
 
-            <div
-                id="quote-detail"
-                aria-live="polite">
-
-                <h2>Select a quote request</h2>
-
-                <p>
-                    Choose a quote request above to view its details.
-                </p>
-
-            </div>
-
         </section>
 
     </main>
+
+    <dialog id="quote-dialog" aria-labelledby="quote-dialog-title">
+        <div id="quote-detail" aria-live="polite">
+            <h2 id="quote-dialog-title">Select a quote request</h2>
+        </div>
+        <button type="button" class="dialog-close" id="quote-dialog-close" aria-label="Close">&times;</button>
+    </dialog>
+
+    <div id="toast-region" class="toast-region" aria-live="polite"></div>
 
     <script src="admin.js"></script>
 

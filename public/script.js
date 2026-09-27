@@ -198,13 +198,20 @@ function displayFormMessage(message, type = "success") {
     }
 
     formMessage.textContent = message;
+    formMessage.className = type;
+}
 
-    if (type === "success") {
-        formMessage.style.color = "#2e7d32";
-    } else if (type === "error") {
-        formMessage.style.color = "#d32f2f";
+function setFieldInvalid(fieldId, isInvalid) {
+    const field = getElement(fieldId);
+
+    if (!field) {
+        return;
+    }
+
+    if (isInvalid) {
+        field.setAttribute("aria-invalid", "true");
     } else {
-        formMessage.style.color = "#555";
+        field.removeAttribute("aria-invalid");
     }
 }
 
@@ -215,17 +222,22 @@ async function handleFormSubmit(event) {
     const formValues = extractFormValues();
 
     const validations = [
-        validateName(formValues.name),
-        validateEmail(formValues.email),
-        validatePhone(formValues.phone),
-        validateStone(formValues.stoneId),
-        validateMessage(formValues.message)
+        ["name", validateName(formValues.name)],
+        ["email", validateEmail(formValues.email)],
+        ["phone", validatePhone(formValues.phone)],
+        ["stone", validateStone(formValues.stoneId)],
+        ["message", validateMessage(formValues.message)]
     ];
 
-    const invalidField = validations.find(validation => !validation.valid);
+    validations.forEach(([fieldId, result]) => setFieldInvalid(fieldId, !result.valid));
+
+    const invalidField = validations.find(([, result]) => !result.valid);
 
     if (invalidField) {
-        displayFormMessage(invalidField.error, "error");
+        const [fieldId, result] = invalidField;
+
+        displayFormMessage(result.error, "error");
+        getElement(fieldId)?.focus();
         return;
     }
 
@@ -281,6 +293,13 @@ function initFormValidation() {
 
     if (quoteForm) {
         quoteForm.addEventListener("submit", handleFormSubmit);
+
+        // Clear a field's error state as soon as the visitor edits it.
+        quoteForm.addEventListener("input", (event) => {
+            if (event.target.hasAttribute("aria-invalid")) {
+                setFieldInvalid(event.target.id, false);
+            }
+        });
     }
 }
 
@@ -288,13 +307,15 @@ function initFormValidation() {
    STONE DISPLAY
    ======================================== */
 
-function createStoneCard(stone) {
-    const article = createElement("article", { className: "stone-card" });
+function stoneImageSource(stone) {
+    return stone.image || `images/${stone.id}.jpg`;
+}
 
+function createStoneImage(stone, loading = "lazy") {
     const image = document.createElement("img");
-    image.src = stone.image || `images/${stone.id}.jpg`;
+    image.src = stoneImageSource(stone);
     image.alt = `${stone.name} granite`;
-    image.loading = "lazy";
+    image.loading = loading;
     image.addEventListener(
         "error",
         () => {
@@ -303,77 +324,125 @@ function createStoneCard(stone) {
         { once: true }
     );
 
+    return image;
+}
+
+function createStockBadge(stone) {
+    return createElement("span", {
+        className: `stone-stock ${stone.inStock ? "in-stock" : "out-of-stock"}`,
+        text: stone.inStock ? "In Stock" : "Out of Stock"
+    });
+}
+
+function createStoneCard(stone) {
+    const article = createElement("article", { className: "stone-card" });
+
+    const media = createElement("button", { className: "stone-card-media" });
+    media.type = "button";
+    media.dataset.stone = stone.id;
+    media.disabled = !stone.inStock;
+    media.setAttribute("aria-label", `View details for ${stone.name}`);
+    media.append(createStoneImage(stone), createStockBadge(stone));
+
+    const body = createElement("div", { className: "stone-card-body" });
+
     const title = createElement("h3", { text: stone.name });
+
+    const origin = createElement("p", {
+        className: "stone-origin",
+        text: [stone.origin, stone.dimensions].filter(Boolean).join(" · ")
+    });
 
     const price = createElement("p", {
         className: "stone-price",
         text: stone.price || "Contact for pricing"
     });
 
-    const stock = createElement("span", {
-        className: `stone-stock ${stone.inStock ? "in-stock" : "out-of-stock"}`,
-        text: stone.inStock ? "In Stock" : "Out of Stock"
-    });
-
     const button = createElement("button", {
         className: "stone-button",
-        text: "View Stone"
+        text: stone.inStock ? "View Stone" : "Coming Soon"
     });
     button.type = "button";
     button.dataset.stone = stone.id;
     button.disabled = !stone.inStock;
 
-    article.append(image, title, price, stock, button);
+    body.append(title, origin, price, button);
+    article.append(media, body);
 
     return article;
 }
 
-function createDetailRow(label, value) {
-    const row = document.createElement("p");
-    const term = createElement("strong", { text: `${label}:` });
+function createSkeletonCard() {
+    const article = createElement("article", { className: "stone-card skeleton" });
+    article.setAttribute("aria-hidden", "true");
 
-    row.append(term, " ");
+    const media = createElement("div", { className: "stone-card-media" });
+    const body = createElement("div", { className: "stone-card-body" });
 
-    if (value instanceof Node) {
-        row.append(value);
-    } else {
-        row.append(String(value));
-    }
+    body.append(
+        createElement("div", { className: "skeleton-line" }),
+        createElement("div", { className: "skeleton-line short" })
+    );
 
-    return row;
+    article.append(media, body);
+
+    return article;
 }
 
-function displayStoneInfo(stone) {
-    const stoneInfo = getElement("stone-info");
+function createDetailItem(label, value, full = false) {
+    const item = createElement("div", { className: full ? "full" : "" });
+    const term = createElement("dt", { text: label });
+    const description = document.createElement("dd");
 
-    if (!stoneInfo) {
+    if (value instanceof Node) {
+        description.append(value);
+    } else {
+        description.textContent = String(value);
+    }
+
+    item.append(term, description);
+
+    return item;
+}
+
+function openStoneDialog(stone) {
+    const dialog = getElement("stone-dialog");
+    const dialogBody = getElement("stone-dialog-body");
+
+    if (!dialog || !dialogBody) {
         return;
     }
 
-    const container = createElement("div", { className: "stone-detail" });
+    const detail = createElement("div", { className: "stone-detail" });
+
+    const media = createElement("div", { className: "stone-detail-media" });
+    media.append(createStoneImage(stone, "eager"));
+
+    const info = createElement("div", { className: "stone-detail-info" });
     const title = createElement("h3", { text: stone.name });
+    title.id = "stone-dialog-title";
+
     const description = createElement("p", {
         className: "stone-desc",
         text: stone.description || ""
     });
-    const meta = createElement("div", { className: "stone-meta" });
 
-    const textDetails = [
+    const meta = createElement("dl", { className: "stone-meta" });
+
+    [
         ["Price", stone.price],
         ["Origin", stone.origin],
         ["Color", stone.color],
         ["Finish", stone.finish],
         ["Size", stone.dimensions]
-    ];
-
-    textDetails
+    ]
         .filter(([, value]) => value)
-        .forEach(([label, value]) => meta.append(createDetailRow(label, value)));
+        .forEach(([label, value]) => meta.append(createDetailItem(label, value)));
 
     if (typeof stone.rating === "number" && stone.rating > 0) {
-        const stars = "⭐".repeat(Math.round(stone.rating));
+        const stars = "★".repeat(Math.round(stone.rating));
 
-        meta.append(createDetailRow("Rating", `${stars} (${stone.rating}/5)`));
+        meta.append(createDetailItem("Rating", `${stars} ${stone.rating}/5`));
     }
 
     if (Array.isArray(stone.certifications) && stone.certifications.length > 0) {
@@ -383,14 +452,10 @@ function displayStoneInfo(stone) {
             badges.append(createElement("span", { className: "cert-badge", text: cert }));
         });
 
-        meta.append(createDetailRow("Certifications", badges));
+        meta.append(createDetailItem("Certifications", badges, true));
     }
 
-    meta.append(
-        createDetailRow("Stock", stone.inStock ? "✓ Available" : "✗ Coming Soon")
-    );
-
-    container.append(title, description, meta);
+    info.append(createStockBadge(stone), title, description, meta);
 
     if (stone.inStock) {
         const quoteButton = createElement("button", {
@@ -398,12 +463,36 @@ function displayStoneInfo(stone) {
             text: `Request a Quote for ${stone.name}`
         });
         quoteButton.type = "button";
-        quoteButton.addEventListener("click", () => selectStoneForQuote(stone.id));
+        quoteButton.addEventListener("click", () => {
+            dialog.close();
+            selectStoneForQuote(stone.id);
+        });
 
-        container.append(quoteButton);
+        info.append(quoteButton);
     }
 
-    stoneInfo.replaceChildren(container);
+    detail.append(media, info);
+    dialogBody.replaceChildren(detail);
+
+    dialog.showModal();
+}
+
+function initStoneDialog() {
+    const dialog = getElement("stone-dialog");
+    const closeButton = getElement("stone-dialog-close");
+
+    if (!dialog) {
+        return;
+    }
+
+    closeButton?.addEventListener("click", () => dialog.close());
+
+    // Close when the backdrop (the dialog element itself) is clicked.
+    dialog.addEventListener("click", (event) => {
+        if (event.target === dialog) {
+            dialog.close();
+        }
+    });
 }
 
 function renderCollectionMessage(message) {
@@ -415,6 +504,19 @@ function renderCollectionMessage(message) {
 
     collectionGrid.replaceChildren(
         createElement("p", { className: "collection-status", text: message })
+    );
+}
+
+function renderCollectionSkeletons(count = 6) {
+    const collectionGrid = getElement("collection-grid");
+
+    if (!collectionGrid) {
+        return;
+    }
+
+    collectionGrid.setAttribute("aria-busy", "true");
+    collectionGrid.replaceChildren(
+        ...Array.from({ length: count }, createSkeletonCard)
     );
 }
 
@@ -467,6 +569,7 @@ function selectStoneForQuote(stoneId) {
     }
 
     stoneSelect.value = stoneId;
+    setFieldInvalid("stone", false);
 
     if (contactSection) {
         contactSection.scrollIntoView({
@@ -474,18 +577,8 @@ function selectStoneForQuote(stoneId) {
             block: "start"
         });
     }
-}
 
-function attachStoneButtonListeners() {
-    queryElements(".stone-button").forEach(button => {
-        button.addEventListener("click", () => {
-            const stone = stones[button.dataset.stone];
-
-            if (stone) {
-                displayStoneInfo(stone);
-            }
-        });
-    });
+    getElement("name")?.focus({ preventScroll: true });
 }
 
 function generateStoneCollection(stoneList) {
@@ -495,26 +588,35 @@ function generateStoneCollection(stoneList) {
         return;
     }
 
+    collectionGrid.removeAttribute("aria-busy");
     collectionGrid.replaceChildren(...stoneList.map(createStoneCard));
-
-    attachStoneButtonListeners();
 }
 
-function resetStoneInfo() {
-    const stoneInfo = getElement("stone-info");
+function initStoneCollection() {
+    const collectionGrid = getElement("collection-grid");
 
-    if (!stoneInfo) {
+    if (!collectionGrid) {
         return;
     }
 
-    stoneInfo.replaceChildren(
-        createElement("h3", { text: "Select a stone" }),
-        createElement("p", { text: "Choose a stone above to learn more." })
-    );
+    // One delegated listener handles both the image and the "View Stone" button.
+    collectionGrid.addEventListener("click", (event) => {
+        const trigger = event.target.closest("[data-stone]");
+
+        if (!trigger || trigger.disabled) {
+            return;
+        }
+
+        const stone = stones[trigger.dataset.stone];
+
+        if (stone) {
+            openStoneDialog(stone);
+        }
+    });
 }
 
 async function loadStonesAsync() {
-    renderCollectionMessage("Loading stones...");
+    renderCollectionSkeletons();
 
     try {
         const response = await fetch("/api/stones");
@@ -527,7 +629,6 @@ async function loadStonesAsync() {
 
         if (stoneList.length === 0) {
             renderCollectionMessage("No stones available at this time.");
-            resetStoneInfo();
 
             return [];
         }
@@ -546,9 +647,91 @@ async function loadStonesAsync() {
         console.error("Unable to load stones from API:", error);
 
         renderCollectionMessage("Unable to load stones. Please try again later.");
-        resetStoneInfo();
 
         return [];
+    }
+}
+
+/* ========================================
+   PAGE CHROME
+   ======================================== */
+
+function initHeaderState() {
+    const header = queryElements(".site-header")[0];
+
+    if (!header) {
+        return;
+    }
+
+    const update = () => header.classList.toggle("scrolled", window.scrollY > 8);
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+}
+
+function initActiveNavLinks() {
+    if (!("IntersectionObserver" in window)) {
+        return;
+    }
+
+    const links = Array.from(queryElements(".nav-links a:not(.nav-cta)"));
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries
+                .filter(entry => entry.isIntersecting)
+                .forEach(entry => {
+                    links.forEach(link => {
+                        link.classList.toggle(
+                            "active",
+                            link.getAttribute("href") === `#${entry.target.id}`
+                        );
+                    });
+                });
+        },
+        { rootMargin: "-45% 0px -50% 0px" }
+    );
+
+    links
+        .map(link => document.querySelector(link.getAttribute("href")))
+        .filter(Boolean)
+        .forEach(section => observer.observe(section));
+}
+
+function initScrollReveal() {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+        return;
+    }
+
+    const targets = queryElements(
+        ".section-heading, .about-grid article, .logistics-grid article, .stat, .contact-intro"
+    );
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries
+                .filter(entry => entry.isIntersecting)
+                .forEach(entry => {
+                    entry.target.classList.add("visible");
+                    observer.unobserve(entry.target);
+                });
+        },
+        { threshold: 0.15 }
+    );
+
+    targets.forEach(target => {
+        target.classList.add("reveal");
+        observer.observe(target);
+    });
+}
+
+function initFooterYear() {
+    const year = getElement("current-year");
+
+    if (year) {
+        year.textContent = String(new Date().getFullYear());
     }
 }
 
@@ -559,6 +742,12 @@ async function loadStonesAsync() {
 document.addEventListener("DOMContentLoaded", () => {
     initMobileMenu();
     setupSmoothScroll();
+    initHeaderState();
+    initActiveNavLinks();
+    initScrollReveal();
+    initFooterYear();
     initFormValidation();
+    initStoneDialog();
+    initStoneCollection();
     loadStonesAsync();
 });

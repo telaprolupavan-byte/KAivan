@@ -46,6 +46,7 @@ kaivan/
 │   ├── app.js              # Express app: routes, security middleware, error handling
 │   ├── config.js           # Environment variable loading + validation
 │   ├── validation.js       # Request validation for stones and quotes
+│   ├── images.js           # Photo processing (sharp) + GridFS photo storage
 │   ├── DB.js               # MongoDB connection + indexes
 │   ├── migrate-stones.js   # Seeds the stones collection
 │   └── data/stones.js      # Seed data
@@ -59,7 +60,7 @@ kaivan/
 
 ## 🚀 Getting Started
 
-Requirements: Node.js 20+ and a MongoDB database (e.g. MongoDB Atlas).
+Requirements: Node.js 20.9+ and a MongoDB database (e.g. MongoDB Atlas).
 
 ```bash
 npm install
@@ -108,6 +109,20 @@ The server refuses to start if a required variable is missing or invalid.
 - bcrypt password check, session regeneration on login, `HttpOnly` / `SameSite` / `Secure` cookies
 - Only `public/` is served; server source, `package.json` and `.env` are never exposed
 - Frontend renders user and database content with `textContent` (no HTML injection)
+- Photo uploads are admin-only, capped at 8 MB / 50 megapixels, and must be real JPEG, PNG,
+  WebP, GIF or AVIF images (SVG is rejected). Every upload is re-encoded, so embedded
+  metadata such as GPS location is stripped
+
+### Stone photos
+
+Admins upload stone photos from the dashboard (click **Choose Photo** or drag a file onto the form).
+Each photo is rotated upright, resized to at most 1600 px, converted to WebP and stored in MongoDB
+GridFS (`stoneImages.files` / `stoneImages.chunks`), so photos persist across deploys and are included
+in database backups. A full-size granite photo is about 300–400 KB after processing, so 250 MB of
+database storage holds roughly 700 photos.
+
+Replacing or removing a stone's photo, or deleting the stone, deletes the old upload automatically.
+Existing stones can keep using files in `public/images/` via **Use an image path or URL instead**.
 
 ### API
 
@@ -118,7 +133,10 @@ The server refuses to start if a required variable is missing or invalid.
 | GET | `/api/stones/:id` | | One stone |
 | POST | `/api/stones` | admin | Create stone |
 | PUT | `/api/stones/:id` | admin | Update stone |
-| DELETE | `/api/stones/:id` | admin | Delete stone |
+| DELETE | `/api/stones/:id` | admin | Delete stone (and its uploaded photo) |
+| POST | `/api/images` | admin | Upload a photo (`multipart/form-data`, field `image`); returns `{ url }` |
+| GET | `/api/images/:id` | | Serve an uploaded photo (cached for a year) |
+| DELETE | `/api/images/:id` | admin | Delete an unused upload |
 | POST | `/api/quotes` | | Submit quote request |
 | GET | `/api/quotes` | admin | List quotes (newest first) |
 | GET | `/api/quotes/:id` | admin | One quote |
@@ -163,10 +181,16 @@ The server refuses to start if a required variable is missing or invalid.
 - Auto-close menu after clicking link
 
 ✅ **Stone Collection**
-- **10 premium stones** dynamically generated from JavaScript array
-- Click "View Stone" to display stone descriptions
-- Responsive 3-column grid (1 column on mobile)
-- Hover animations (lift effect, image zoom)
+- Stones loaded from the API with loading placeholders
+- Click a stone to open its details (price, origin, size, rating, certifications) in a pop-up
+- "Request a Quote" from the pop-up pre-selects the stone in the quote form
+- Responsive grid (3 columns → 2 on tablet → 1 on mobile), hover animations
+
+✅ **Admin Dashboard**
+- Add, edit and delete stones, with photo upload (drag & drop, live preview, progress)
+- Catalog search and in-stock count
+- Quote summary tiles that double as status filters, status updates, quote detail pop-up
+  with click-to-email / click-to-call
 
 ✅ **Contact Form**
 - 5-step validation: name, email format, message, company, phone
@@ -240,7 +264,12 @@ quoteForm.addEventListener("submit", function (event) {
 ## 🔧 Troubleshooting
 
 **Images not loading?**
-- Images live in `public/images/`; a stone without an `image` value uses `images/<stone-id>.jpg`
+- Uploaded photos are served from `/api/images/<id>`; bundled images live in `public/images/`
+- A stone without an `image` value uses `images/<stone-id>.jpg`
+
+**Photo upload fails?**
+- iPhone HEIC photos: pick the photo through the file picker (iOS converts it to JPEG automatically)
+  or export it as JPEG first
 
 **Mobile menu not closing?**
 - Check that `nav-links.open` class is properly toggled
@@ -256,7 +285,7 @@ quoteForm.addEventListener("submit", function (event) {
 ## 📚 Next Steps
 
 1. **Email notifications** — Notify the sales team when a new quote arrives
-2. **Image uploads** — Upload stone photos from the admin dashboard
+2. **Multiple photos per stone** — Gallery of slab and finish photos
 3. **Pagination** — Page the admin quote list as volume grows
 
 ---
