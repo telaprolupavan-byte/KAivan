@@ -1,14 +1,45 @@
 const { MongoClient } = require("mongodb");
-require("dotenv").config();
 
-const client = new MongoClient(process.env.MONGODB_URI);
+async function connectToDatabase(uri, dbName = "kaivan") {
+    const client = new MongoClient(uri, {
+        serverSelectionTimeoutMS: 10000
+    });
 
-async function connectToDatabase() {
     await client.connect();
 
     console.log("MongoDB connected successfully");
 
-    return client.db("kaivan");
+    return {
+        client,
+        db: client.db(dbName)
+    };
 }
 
-module.exports = connectToDatabase;
+async function ensureIndexes(db) {
+    const indexes = [
+        // Stone ids must be unique; legacy seeded documents without an `id` field are ignored.
+        db.collection("stones").createIndex(
+            { id: 1 },
+            {
+                unique: true,
+                partialFilterExpression: { id: { $type: "string" } }
+            }
+        ),
+        db.collection("quotes").createIndex({ createdAt: -1 }),
+        db.collection("quotes").createIndex({ status: 1 }),
+        db.collection("quotes").createIndex({ reference: 1 }, { unique: true })
+    ];
+
+    const results = await Promise.allSettled(indexes);
+
+    results
+        .filter((result) => result.status === "rejected")
+        .forEach((result) => {
+            console.warn("Unable to create MongoDB index:", result.reason.message);
+        });
+}
+
+module.exports = {
+    connectToDatabase,
+    ensureIndexes
+};

@@ -1,0 +1,1148 @@
+/* ========================================
+   KAIVAN STONE — CSS STYLESHEET
+   ======================================== */
+
+/* 1. Design System */
+
+:root {
+    --cream: #f5f1e8;
+    --stone: #d8d1c4;
+    --dark: #1d1d1b;
+    --white: #ffffff;
+    --muted: #6f6b64;
+
+    --line: rgba(29, 29, 27, 0.12);
+    --shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    --radius: 4px;
+    --gutter: 6%;
+    --header-height: 76px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Component display rules (e.g. button { display: inline-flex }) must not un-hide [hidden]. */
+[hidden] {
+    display: none !important;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--header-height);
+}
+
+body {
+    margin: 0;
+    background-color: var(--cream);
+    color: var(--dark);
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+img {
+    max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+p {
+    margin-top: 0;
+}
+
+h1 {
+    font-size: clamp(52px, 7vw, 104px);
+    line-height: 0.95;
+    letter-spacing: -4px;
+}
+
+h2 {
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: -2px;
+}
+
+h3 {
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+a {
+    color: inherit;
+}
+
+:focus-visible {
+    outline: 2px solid var(--dark);
+    outline-offset: 3px;
+}
+
+.eyebrow,
+.section-heading p:first-child {
+    margin-bottom: 15px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    z-index: 100;
+    padding: 10px 16px;
+    background: var(--dark);
+    color: var(--white);
+    text-decoration: none;
+}
+
+.skip-link:focus {
+    top: 16px;
+}
+
+/* 2. Buttons */
+
+.button {
+    display: inline-block;
+    padding: 15px 28px;
+    border: 1px solid var(--dark);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+        transform 0.25s ease,
+        background-color 0.25s ease,
+        color 0.25s ease;
+}
+
+.button:hover {
+    transform: translateY(-3px);
+}
+
+.button-primary {
+    background: var(--dark);
+    color: var(--white);
+}
+
+.button-outline {
+    background: transparent;
+    color: var(--dark);
+}
+
+.button-outline:hover {
+    background: var(--dark);
+    color: var(--white);
+}
+
+/* 3. Header & Navigation */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 0 var(--gutter);
+    background: rgba(245, 241, 232, 0.92);
+    border-bottom: 1px solid transparent;
+    backdrop-filter: blur(10px);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.site-header.scrolled {
+    border-bottom-color: var(--line);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: var(--header-height);
+}
+
+.brand {
+    color: var(--dark);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.nav-links a {
+    position: relative;
+    color: var(--dark);
+    text-decoration: none;
+}
+
+.nav-links a:not(.nav-cta)::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 100%;
+    height: 1px;
+    background: var(--dark);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+}
+
+.nav-links a:not(.nav-cta):hover::after,
+.nav-links a.active::after {
+    transform: scaleX(1);
+}
+
+.nav-cta {
+    padding: 10px 18px;
+    background: var(--dark);
+    color: var(--white) !important;
+    font-weight: 600;
+    transition: opacity 0.25s ease;
+}
+
+.nav-cta:hover {
+    opacity: 0.85;
+}
+
+#menu-button {
+    display: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.menu-icon,
+.menu-icon::before,
+.menu-icon::after {
+    display: block;
+    width: 24px;
+    height: 2px;
+    margin: 0 auto;
+    background: var(--dark);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.menu-icon {
+    position: relative;
+}
+
+.menu-icon::before,
+.menu-icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+}
+
+.menu-icon::before {
+    top: -7px;
+}
+
+.menu-icon::after {
+    top: 7px;
+}
+
+#menu-button[aria-expanded="true"] .menu-icon {
+    background: transparent;
+}
+
+#menu-button[aria-expanded="true"] .menu-icon::before {
+    transform: translateY(7px) rotate(45deg);
+}
+
+#menu-button[aria-expanded="true"] .menu-icon::after {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* 4. Sections */
+
+section {
+    padding: 120px var(--gutter);
+}
+
+.section-heading {
+    max-width: 750px;
+    margin-bottom: 60px;
+}
+
+.section-heading h2 {
+    margin-bottom: 20px;
+}
+
+.section-heading p:last-child:not(:first-child) {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 18px;
+}
+
+/* 5. Hero */
+
+#hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: 48px;
+    min-height: calc(88vh - var(--header-height));
+    padding-top: 60px;
+    padding-bottom: 80px;
+}
+
+.hero-content h1 {
+    max-width: 640px;
+    margin: 0 0 24px;
+}
+
+.hero-lead {
+    max-width: 520px;
+    margin-bottom: 36px;
+    color: var(--muted);
+    font-size: 20px;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.hero-logo {
+    overflow: hidden;
+    background: var(--cream);
+    border: 1px solid var(--line);
+}
+
+.hero-logo img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* 6. Collection */
+
+#collection {
+    padding: 100px var(--gutter);
+    background: var(--white);
+}
+
+.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.stone-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--cream);
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.stone-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow);
+}
+
+.stone-card-media {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    background: var(--stone);
+    cursor: pointer;
+    aspect-ratio: 4 / 3;
+}
+
+.stone-card-media:disabled {
+    cursor: default;
+}
+
+.stone-card-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.stone-card:hover .stone-card-media img {
+    transform: scale(1.04);
+}
+
+.stone-card-media .stone-stock {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+}
+
+.stone-card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 6px;
+    padding: 22px;
+}
+
+.stone-card-body h3 {
+    margin: 0;
+}
+
+.stone-origin {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.stone-price {
+    margin: 0;
+    color: #d9534f;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.stone-button {
+    width: 100%;
+    margin-top: auto;
+    padding: 12px 20px;
+    background-color: var(--dark);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.stone-card-body .stone-price + .stone-button {
+    margin-top: 16px;
+}
+
+.stone-button:hover:not(:disabled) {
+    background-color: var(--muted);
+}
+
+.stone-button:disabled {
+    background-color: #cccccc;
+    color: var(--dark);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.stone-stock {
+    display: inline-block;
+    width: fit-content;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.in-stock {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.out-of-stock {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.collection-status {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 24px;
+    background: var(--cream);
+    color: var(--muted);
+}
+
+/* Loading skeletons */
+
+.stone-card.skeleton {
+    pointer-events: none;
+}
+
+.skeleton .stone-card-media,
+.skeleton-line {
+    background: linear-gradient(90deg, var(--stone) 25%, var(--cream) 50%, var(--stone) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease infinite;
+}
+
+.skeleton-line {
+    height: 14px;
+    border-radius: var(--radius);
+}
+
+.skeleton-line.short {
+    width: 40%;
+}
+
+@keyframes shimmer {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+/* 6a. Stone detail dialog */
+
+#stone-dialog {
+    width: min(960px, calc(100% - 32px));
+    max-height: calc(100% - 32px);
+    padding: 0;
+    border: none;
+    background: var(--white);
+    color: var(--dark);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+}
+
+#stone-dialog::backdrop {
+    background: rgba(29, 29, 27, 0.6);
+    backdrop-filter: blur(2px);
+}
+
+#stone-dialog[open] {
+    animation: dialog-in 0.25s ease;
+}
+
+@keyframes dialog-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dialog-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--dark);
+    cursor: pointer;
+    font-size: 26px;
+    line-height: 1;
+}
+
+.dialog-close:hover {
+    background: var(--cream);
+}
+
+.stone-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.stone-detail-media {
+    min-height: 100%;
+    background: var(--stone);
+}
+
+.stone-detail-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    object-fit: cover;
+}
+
+.stone-detail-info {
+    padding: 44px 40px 40px;
+}
+
+.stone-detail-info h3 {
+    margin: 12px 0 16px;
+    font-size: 32px;
+    letter-spacing: -1px;
+}
+
+.stone-desc {
+    margin-bottom: 28px;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+.stone-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0 0 28px;
+}
+
+.stone-meta div {
+    padding: 12px 14px;
+    background-color: var(--cream);
+    border-radius: var(--radius);
+}
+
+.stone-meta div.full {
+    grid-column: 1 / -1;
+}
+
+.stone-meta dt {
+    margin-bottom: 2px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.stone-meta dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.cert-badge {
+    display: inline-block;
+    margin: 4px 4px 0 0;
+    padding: 6px 12px;
+    background-color: #e8f4f8;
+    color: #0c5460;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.stone-quote-button {
+    width: 100%;
+    padding: 15px 22px;
+    border: none;
+    background: var(--dark);
+    color: var(--white);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    transition: opacity 0.2s ease;
+}
+
+.stone-quote-button:hover {
+    opacity: 0.85;
+}
+
+/* 7. About */
+
+#about {
+    background-color: var(--stone);
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 30px;
+}
+
+.about-grid article {
+    padding: 35px;
+    background: rgba(255, 255, 255, 0.55);
+    border-top: 2px solid var(--dark);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.about-grid article:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-4px);
+}
+
+.about-grid article p {
+    margin-bottom: 0;
+    color: var(--muted);
+}
+
+/* 8. Logistics */
+
+.logistics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 30px;
+}
+
+.logistics-grid article {
+    padding: 35px 0;
+    border-top: 1px solid var(--dark);
+}
+
+.step-number {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--muted);
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.logistics-grid article h3 {
+    margin: 0 0 10px;
+}
+
+.logistics-grid article p {
+    margin-bottom: 0;
+    color: var(--muted);
+}
+
+/* 9. Statistics */
+
+#stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 40px;
+    padding: 100px var(--gutter);
+    background: var(--stone);
+    text-align: center;
+}
+
+.stat {
+    padding: 20px;
+}
+
+.stat + .stat {
+    border-left: 1px solid var(--line);
+}
+
+#stats strong {
+    display: block;
+    font-size: clamp(48px, 6vw, 80px);
+    line-height: 1;
+    letter-spacing: -2px;
+}
+
+#stats span {
+    display: block;
+    margin-top: 15px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+/* 10. Contact & Quote Form */
+
+#contact {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 64px;
+    padding: 120px var(--gutter);
+    background: var(--dark);
+    color: var(--white);
+}
+
+#contact .eyebrow {
+    color: var(--stone);
+}
+
+#contact h2 {
+    margin-bottom: 20px;
+}
+
+.contact-intro > p:not(.eyebrow) {
+    color: #c9c5bd;
+    font-size: 18px;
+}
+
+.contact-points {
+    margin: 36px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.contact-points li {
+    padding: 14px 0 14px 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    color: #c9c5bd;
+    position: relative;
+}
+
+.contact-points li::before {
+    content: "";
+    position: absolute;
+    top: 22px;
+    left: 0;
+    width: 14px;
+    height: 1px;
+    background: var(--stone);
+}
+
+#quote-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 24px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-field-full,
+.form-footer {
+    grid-column: 1 / -1;
+}
+
+#quote-form label {
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#quote-form label span {
+    color: var(--stone);
+}
+
+#quote-form input,
+#quote-form select,
+#quote-form textarea {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid #c9c5bc;
+    border-radius: 0;
+    background: var(--white);
+    color: var(--dark);
+    font: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#quote-form input::placeholder,
+#quote-form textarea::placeholder {
+    color: #8f8a82;
+}
+
+#quote-form input:focus,
+#quote-form select:focus,
+#quote-form textarea:focus {
+    outline: none;
+    border-color: var(--stone);
+    box-shadow: 0 0 0 3px rgba(216, 209, 196, 0.45);
+}
+
+#quote-form [aria-invalid="true"] {
+    border-color: #d32f2f;
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.25);
+}
+
+#quote-form textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.form-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+}
+
+#quote-form button {
+    padding: 15px 32px;
+    border: 1px solid var(--white);
+    background: var(--white);
+    color: var(--dark);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+#quote-form button:hover:not(:disabled) {
+    transform: translateY(-3px);
+}
+
+#quote-form button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.form-note {
+    margin: 0;
+    color: #8f8a82;
+    font-size: 13px;
+}
+
+#form-message {
+    margin-top: 24px;
+    padding: 16px 18px;
+    border-left: 4px solid var(--stone);
+    background: var(--white);
+    color: var(--dark);
+    font-weight: 600;
+}
+
+#form-message:empty {
+    display: none;
+}
+
+#form-message.success {
+    border-left-color: #3d6b45;
+}
+
+#form-message.error {
+    border-left-color: #d32f2f;
+}
+
+/* 11. Footer */
+
+footer {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px 40px;
+    align-items: center;
+    padding: 56px var(--gutter) 32px;
+    background: #111;
+    color: var(--white);
+}
+
+footer h2 {
+    margin: 0;
+    font-size: 24px;
+    letter-spacing: 1px;
+}
+
+.footer-brand p {
+    margin: 8px 0 0;
+    color: #aaa;
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.footer-links a {
+    color: #ccc;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    color: var(--white);
+}
+
+.footer-copy {
+    grid-column: 1 / -1;
+    margin: 16px 0 0;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #888;
+    font-size: 13px;
+}
+
+/* 12. Scroll reveal */
+
+.reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* 13. Responsive */
+
+@media (max-width: 1024px) {
+    .collection-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #hero {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        min-height: auto;
+    }
+
+    .hero-logo {
+        order: -1;
+        max-width: 720px;
+    }
+
+    #contact {
+        grid-template-columns: 1fr;
+        gap: 48px;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --header-height: 64px;
+    }
+
+    #menu-button {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 12px 20px 20px;
+        background: var(--cream);
+        border-bottom: 1px solid var(--line);
+        box-shadow: 0 16px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links a {
+        padding: 14px 0;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .nav-links a:not(.nav-cta)::after {
+        display: none;
+    }
+
+    .nav-links .nav-cta {
+        margin-top: 12px;
+        padding: 14px;
+        border-bottom: none;
+        text-align: center;
+    }
+
+    section,
+    #collection,
+    #contact {
+        padding: 80px 20px;
+    }
+
+    .site-header,
+    footer {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    #hero {
+        padding-top: 32px;
+        padding-bottom: 64px;
+    }
+
+    h1 {
+        letter-spacing: -2px;
+    }
+
+    .hero-lead {
+        font-size: 17px;
+    }
+
+    .hero-actions .button {
+        flex: 1 1 auto;
+        text-align: center;
+    }
+
+    .section-heading {
+        margin-bottom: 40px;
+    }
+
+    .collection-grid,
+    .about-grid,
+    .logistics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stone-detail {
+        grid-template-columns: 1fr;
+    }
+
+    .stone-detail-media img {
+        min-height: 0;
+        aspect-ratio: 4 / 3;
+    }
+
+    .stone-detail-info {
+        padding: 28px 22px 24px;
+    }
+
+    #stats {
+        grid-template-columns: 1fr;
+        gap: 0;
+        padding: 60px 20px;
+    }
+
+    .stat + .stat {
+        border-left: none;
+        border-top: 1px solid var(--line);
+    }
+
+    #quote-form {
+        grid-template-columns: 1fr;
+    }
+
+    #quote-form button {
+        width: 100%;
+    }
+
+    footer {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .reveal {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* 14. 404 page */
+
+.not-found {
+    min-height: calc(100vh - var(--header-height));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.not-found h1 {
+    margin-bottom: 20px;
+}
+
+.not-found p:not(.eyebrow) {
+    margin-bottom: 32px;
+    color: var(--muted);
+    font-size: 18px;
+}

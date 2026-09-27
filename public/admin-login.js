@@ -1,5 +1,6 @@
 const loginForm = document.getElementById("login-form");
 const loginError = document.getElementById("login-error");
+const loginSubmit = document.getElementById("login-submit");
 
 loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -8,6 +9,8 @@ loginForm.addEventListener("submit", async (event) => {
     const password = document.getElementById("password").value;
 
     loginError.textContent = "";
+    loginSubmit.disabled = true;
+    loginSubmit.textContent = "Signing in…";
 
     try {
         const response = await fetch("/api/admin/login", {
@@ -22,7 +25,7 @@ loginForm.addEventListener("submit", async (event) => {
             })
         });
 
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
             loginError.textContent = data.error || "Login failed.";
@@ -33,5 +36,8 @@ loginForm.addEventListener("submit", async (event) => {
     } catch (error) {
         console.error("Login error:", error);
         loginError.textContent = "Unable to connect to the server.";
+    } finally {
+        loginSubmit.disabled = false;
+        loginSubmit.textContent = "Login";
     }
 });

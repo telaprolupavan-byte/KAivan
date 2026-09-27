@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Kaivan Admin Login</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+    <main class="login-page">
+        <div class="login-card">
+            <a class="login-brand" href="/">Kaivan Stone</a>
+
+            <div class="section-heading">
+                <p>Kaivan Admin</p>
+                <h1>Login</h1>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input
+                        id="username"
+                        type="text"
+                        name="username"
+                        autocomplete="username"
+                        autofocus
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        id="password"
+                        type="password"
+                        name="password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <p id="login-error" role="alert"></p>
+
+                <button type="submit" id="login-submit">Login</button>
+            </form>
+
+            <a class="login-back" href="/">← Back to website</a>
+        </div>
+    </main>
+
+    <script src="admin-login.js"></script>
+</body>
+</html>
