@@ -30,7 +30,7 @@ const validStone = {
     image: "images/hero.jpg"
 };
 
-function buildApp() {
+function buildApp(configOverrides = {}) {
     const db = createFakeDb();
 
     // Legacy seeded stone: slug stored only in _id.
@@ -61,7 +61,7 @@ function buildApp() {
 
     const app = createApp({
         db,
-        config,
+        config: { ...config, ...configOverrides },
         imageStore,
         sessionStore: new session.MemoryStore()
     });
