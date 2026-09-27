@@ -3,6 +3,7 @@ const path = require("path");
 const express = require("express");
 const session = require("express-session");
 const helmet = require("helmet");
+const compression = require("compression");
 const { rateLimit } = require("express-rate-limit");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
@@ -14,10 +15,19 @@ const {
 } = require("./validation");
 const {
     MAX_UPLOAD_BYTES,
+    VARIANT_WIDTHS,
     ImageProcessingError,
     processImage,
     uploadedImageId
 } = require("./images");
+const {
+    resolveStoneImage,
+    renderStonePage,
+    pickRelatedStones,
+    renderSitemap,
+    renderRobots,
+    createHomeRenderer
+} = require("./pages");
 
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
 const SESSION_COOKIE_NAME = "kaivan.sid";
@@ -35,10 +45,14 @@ function stoneFilter(stoneId) {
 
 function serializeStone(stone) {
     const { _id, ...data } = stone;
+    const image = resolveStoneImage(stone);
 
     return {
         ...data,
-        id: stone.id || String(_id)
+        id: stone.id || String(_id),
+        // Resolved display photo; `image` stays the raw value admins edit.
+        imageSrc: image.src,
+        imageSrcset: image.srcset
     };
 }
 
@@ -96,6 +110,8 @@ function createApp({ db, config, sessionStore, imageStore }) {
         })
     );
 
+    app.use(compression());
+
     app.use(express.json({ limit: "20kb" }));
 
     app.use(
@@ -141,7 +157,9 @@ function createApp({ db, config, sessionStore, imageStore }) {
                 return res.status(404).json({ error: "Image not found" });
             }
 
-            const image = await imageStore.open(req.params.id);
+            const requestedWidth = Number(req.query.w);
+            const width = VARIANT_WIDTHS.includes(requestedWidth) ? requestedWidth : undefined;
+            const image = await imageStore.open(req.params.id, { width });
 
             if (!image) {
                 return res.status(404).json({ error: "Image not found" });
@@ -231,6 +249,76 @@ function createApp({ db, config, sessionStore, imageStore }) {
         }
 
         next();
+    });
+
+    // =========================
+    // PUBLIC PAGES (server-rendered for search engines and link previews)
+    // =========================
+
+    const renderHome = createHomeRenderer({ cache: config.isProduction });
+
+    // Absolute URLs need the public origin. SITE_URL is preferred; the Host header is
+    // only trusted when it looks like a plain host name.
+    function siteOrigin(req) {
+        if (config.siteUrl) {
+            return config.siteUrl;
+        }
+
+        const host = req.get("host") || "";
+
+        return /^[a-z0-9.-]+(:\d+)?$/i.test(host)
+            ? `${req.protocol}://${host}`
+            : "http://localhost";
+    }
+
+    async function loadAllStones() {
+        return stonesCollection.find({}).sort({ name: 1 }).toArray();
+    }
+
+    app.get(["/", "/index.html"], (req, res, next) => {
+        try {
+            res.type("html").send(renderHome(siteOrigin(req)));
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.get("/robots.txt", (req, res) => {
+        res.type("text/plain").send(renderRobots({ origin: siteOrigin(req) }));
+    });
+
+    app.get("/sitemap.xml", async (req, res, next) => {
+        try {
+            const stones = await loadAllStones();
+
+            res.type("application/xml").send(renderSitemap({ stones, origin: siteOrigin(req) }));
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.get("/stones", (req, res) => {
+        res.redirect(301, "/#collection");
+    });
+
+    app.get("/stones/:id", async (req, res, next) => {
+        try {
+            const stone = await stonesCollection.findOne(stoneFilter(req.params.id));
+
+            if (!stone) {
+                return res.status(404).sendFile(path.join(PUBLIC_DIR, "404.html"));
+            }
+
+            const related = pickRelatedStones(await loadAllStones(), stone);
+
+            res.type("html").send(renderStonePage({
+                stone,
+                related,
+                origin: siteOrigin(req)
+            }));
+        } catch (error) {
+            next(error);
+        }
     });
 
     app.use(
@@ -461,12 +549,17 @@ function createApp({ db, config, sessionStore, imageStore }) {
                     }
                 });
 
+                await Promise.all(image.variants.map((variant) =>
+                    imageStore.saveVariant(id, variant.width, variant.buffer, image.contentType)
+                ));
+
                 res.status(201).json({
                     message: "Image uploaded successfully.",
                     id,
                     url: `/api/images/${id}`,
                     width: image.width,
-                    height: image.height
+                    height: image.height,
+                    variants: image.variants.map((variant) => variant.width)
                 });
             } catch (error) {
                 if (error instanceof ImageProcessingError) {

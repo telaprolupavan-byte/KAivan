@@ -27,7 +27,8 @@ async function ensureIndexes(db) {
         ),
         db.collection("quotes").createIndex({ createdAt: -1 }),
         db.collection("quotes").createIndex({ status: 1 }),
-        db.collection("quotes").createIndex({ reference: 1 }, { unique: true })
+        db.collection("quotes").createIndex({ reference: 1 }, { unique: true }),
+        db.collection("stoneImages.files").createIndex({ "metadata.parentId": 1 })
     ];
 
     const results = await Promise.allSettled(indexes);

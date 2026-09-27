@@ -48,8 +48,29 @@ function loadConfig(env = process.env) {
         );
     }
 
+    let siteUrl = "";
+
+    if (env.SITE_URL) {
+        let parsed;
+
+        try {
+            parsed = new URL(env.SITE_URL);
+        } catch {
+            throw new Error("SITE_URL must be a full URL, e.g. https://kaivanstone.com");
+        }
+
+        if (!/^https?:$/.test(parsed.protocol)) {
+            throw new Error("SITE_URL must start with http:// or https://");
+        }
+
+        siteUrl = parsed.origin;
+    } else if (isProduction) {
+        console.warn("SITE_URL is not set; canonical and social-preview URLs will use the request's Host header.");
+    }
+
     return {
         isProduction,
+        siteUrl,
         port: Number(env.PORT) || 3000,
         mongoUri: env.MONGODB_URI,
         mongoDbName: env.MONGODB_DB || "kaivan",
