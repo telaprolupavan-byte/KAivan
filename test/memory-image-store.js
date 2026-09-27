@@ -4,9 +4,11 @@ const { ObjectId } = require("mongodb");
 
 function createMemoryImageStore() {
     const files = new Map();
+    const variants = new Map();
 
     return {
         files,
+        variants,
 
         async save(buffer, { contentType, metadata }) {
             const id = String(new ObjectId());
@@ -16,8 +18,12 @@ function createMemoryImageStore() {
             return id;
         },
 
-        async open(id) {
-            const file = files.get(id);
+        async saveVariant(parentId, width, buffer, contentType) {
+            variants.set(`${parentId}:${width}`, { buffer, contentType });
+        },
+
+        async open(id, { width } = {}) {
+            const file = (width && variants.get(`${id}:${width}`)) || files.get(id);
 
             if (!file) {
                 return null;
@@ -31,6 +37,12 @@ function createMemoryImageStore() {
         },
 
         async remove(id) {
+            for (const key of variants.keys()) {
+                if (key.startsWith(`${id}:`)) {
+                    variants.delete(key);
+                }
+            }
+
             return files.delete(id);
         }
     };

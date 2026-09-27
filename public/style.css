@@ -306,6 +306,13 @@ p {
         translate 0.6s var(--ease);
 }
 
+.site-header.is-scrolled {
+    background: rgba(18, 18, 17, 0.72);
+    border-bottom-color: var(--line-dark);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    backdrop-filter: blur(16px) saturate(1.2);
+}
+
 .site-header.is-solid {
     background: rgba(245, 241, 232, 0.88);
     border-bottom-color: var(--line);
@@ -338,7 +345,8 @@ p {
     transition: height 0.6s var(--ease);
 }
 
-.site-header.is-solid .nav {
+.site-header.is-solid .nav,
+.site-header.is-scrolled .nav {
     height: var(--header-h-solid);
 }
 
@@ -947,6 +955,7 @@ section {
     font: inherit;
     letter-spacing: inherit;
     text-align: left;
+    text-decoration: none;
 }
 
 /* The whole card is clickable through the title button */
@@ -1245,6 +1254,32 @@ section {
     margin: 0;
     color: var(--muted);
     font: italic 400 20px/1.4 var(--serif);
+}
+
+.stone-details-link,
+.section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font: 500 11px/1 var(--sans);
+    letter-spacing: 0.22em;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.stone-details-link {
+    margin-top: 22px;
+    color: var(--gold-deep);
+}
+
+.section-link {
+    color: var(--dark);
+}
+
+.stone-details-link:hover .icon-arrow,
+.section-link:hover .icon-arrow {
+    translate: 6px 0;
 }
 
 .dialog-close {
@@ -1817,7 +1852,141 @@ section {
     color: var(--gold-light);
 }
 
-/* 15. 404 page */
+/* 15. Stone pages */
+
+.stone-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 0;
+    background: var(--ink);
+    color: var(--on-dark);
+}
+
+.stone-hero-media {
+    position: relative;
+    overflow: hidden;
+    min-height: 460px;
+    background: var(--dark);
+}
+
+.stone-hero-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: hero-zoom 18s var(--ease) both;
+}
+
+/* Keeps the transparent header readable over light stones, and blends into the panel */
+.stone-hero-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(18, 18, 17, 0.78) 0, rgba(18, 18, 17, 0.4) 110px, rgba(18, 18, 17, 0) 230px),
+        linear-gradient(90deg, rgba(18, 18, 17, 0) 62%, rgba(18, 18, 17, 0.55) 100%);
+    pointer-events: none;
+}
+
+.stone-hero-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: calc(var(--header-h) + 48px) var(--pad) 72px clamp(40px, 5vw, 88px);
+}
+
+.breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 44px;
+    padding: 0;
+    color: var(--on-dark-muted);
+    font: 500 11px/1.4 var(--sans);
+    letter-spacing: 0.2em;
+    list-style: none;
+    text-transform: uppercase;
+}
+
+.breadcrumb li + li::before {
+    content: "/";
+    margin-right: 10px;
+    color: var(--gold);
+}
+
+.breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.4s ease;
+}
+
+.breadcrumb a:hover,
+.breadcrumb [aria-current] {
+    color: var(--on-dark);
+}
+
+.stone-hero-info .eyebrow {
+    margin-bottom: 24px;
+}
+
+.stone-hero-info h1 {
+    margin: 0 0 26px;
+    font-size: clamp(58px, 6.4vw, 112px);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+}
+
+.stone-hero-desc {
+    max-width: 520px;
+    margin: 0 0 38px;
+    color: rgba(245, 241, 232, 0.8);
+    font-size: 17px;
+    font-weight: 300;
+}
+
+.stone-specs-dark {
+    max-width: 560px;
+    border-top-color: var(--line-dark);
+}
+
+.stone-specs-dark div {
+    border-bottom-color: var(--line-dark);
+}
+
+.stone-specs-dark dt {
+    color: var(--on-dark-muted);
+}
+
+.stone-specs-dark dd {
+    color: var(--on-dark);
+}
+
+.stone-specs-dark .cert-badge {
+    border-color: rgba(198, 164, 106, 0.5);
+    color: var(--gold-light);
+}
+
+.stone-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.stone-hero .stone-unavailable-note {
+    width: 100%;
+    margin-bottom: 8px;
+    color: var(--on-dark-muted);
+}
+
+.more-stones {
+    background: var(--cream);
+}
+
+/* 16. 404 page */
 
 .not-found {
     display: flex;
@@ -1849,7 +2018,7 @@ section {
     font-size: 18px;
 }
 
-/* 16. Responsive */
+/* 17. Responsive */
 
 @media (max-width: 1100px) {
     .collection-grid {
@@ -2039,6 +2208,20 @@ section {
     .stone-detail-media {
         aspect-ratio: 4 / 3;
     }
+
+    .stone-hero {
+        grid-template-columns: 1fr;
+        min-height: 0;
+    }
+
+    .stone-hero-media {
+        min-height: 0;
+        aspect-ratio: 4 / 3;
+    }
+
+    .stone-hero-info {
+        padding: 44px var(--pad) 80px;
+    }
 }
 
 @keyframes menu-link-in {
@@ -2080,7 +2263,8 @@ section {
         margin-bottom: 38px;
     }
 
-    .hero-actions {
+    .hero-actions,
+    .stone-hero-actions {
         flex-direction: column;
         align-items: stretch;
     }
@@ -2152,6 +2336,7 @@ section {
     }
 
     .hero-media,
+    .stone-hero-media img,
     .marquee-track,
     .scroll-cue-line::after {
         animation: none;

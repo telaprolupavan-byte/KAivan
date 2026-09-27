@@ -39,7 +39,6 @@ kaivan/
 │   ├── admin.css
 │   ├── admin.js            # Stone CRUD + quote management
 │   ├── 404.html
-│   ├── robots.txt
 │   ├── favicon-32.png / apple-touch-icon.png   # "K" monogram from the logo
 │   ├── fonts/              # Cormorant Garamond + Jost, self-hosted (SIL Open Font License)
 │   └── images/             # Original JPGs + web-optimized WebP copies (npm run optimize-images)
@@ -48,6 +47,7 @@ kaivan/
 │   ├── app.js              # Express app: routes, security middleware, error handling
 │   ├── config.js           # Environment variable loading + validation
 │   ├── validation.js       # Request validation for stones and quotes
+│   ├── pages.js            # Server-rendered stone pages, sitemap, robots.txt, SEO tags
 │   ├── images.js           # Photo processing (sharp) + GridFS photo storage
 │   ├── DB.js               # MongoDB connection + indexes
 │   ├── migrate-stones.js   # Seeds the stones collection
@@ -92,6 +92,7 @@ npm start                                  # http://localhost:3000
 | `ADMIN_PASSWORD_HASH` | ✅ | bcrypt hash of the admin password |
 | `SESSION_SECRET` | ✅ | Random string, 32+ characters in production |
 | `NODE_ENV` | | Set to `production` in production (secure cookies, HSTS, caching) |
+| `SITE_URL` | | Public address, e.g. `https://kaivanstone.com`, used for canonical links, the sitemap and social previews (recommended in production) |
 | `PORT` | | HTTP port (default `3000`) |
 | `TRUST_PROXY` | | Number of reverse proxies in front of the app (set `1` on Render/Heroku/Nginx) |
 
@@ -102,6 +103,7 @@ The server refuses to start if a required variable is missing or invalid.
 - `NODE_ENV=production`, served over HTTPS, `TRUST_PROXY` set to match your hosting.
 - Never commit `.env` — it is git-ignored; configure secrets in your host's dashboard.
 - Health check endpoint for your load balancer: `GET /api/health` (checks the database).
+- Set `SITE_URL`, then submit `https://<your-domain>/sitemap.xml` in Google Search Console.
 - Admin sessions are stored in MongoDB (`sessions` collection) and expire after 8 hours.
 
 ### Security features
@@ -124,8 +126,19 @@ GridFS (`stoneImages.files` / `stoneImages.chunks`), so photos persist across de
 in database backups. A full-size granite photo is about 300–400 KB after processing, so 250 MB of
 database storage holds roughly 700 photos.
 
-Replacing or removing a stone's photo, or deleting the stone, deletes the old upload automatically.
+Each upload is also saved as an 800 px rendition (`/api/images/<id>?w=800`) so cards and phones
+download a smaller file. Replacing or removing a stone's photo, or deleting the stone, deletes the
+old upload and its rendition automatically.
 Existing stones can keep using files in `public/images/` via **Use an image path or URL instead**.
+
+### Stone pages & SEO
+
+Every stone has its own server-rendered page at `/stones/<stone-id>` with its photo, specs, a
+"Request a Quote" button (which pre-selects the stone in the quote form), and suggestions of other
+stones. Pages include a canonical link, Open Graph/Twitter preview tags, and schema.org `Product`
+and `BreadcrumbList` data. `/sitemap.xml` lists the home page and every stone, and `/robots.txt`
+points crawlers at it while keeping them out of the admin pages. On the home page, the collection
+cards link to these pages; a normal click opens the quick-view pop-up instead.
 
 ### API
 
@@ -138,7 +151,7 @@ Existing stones can keep using files in `public/images/` via **Use an image path
 | PUT | `/api/stones/:id` | admin | Update stone |
 | DELETE | `/api/stones/:id` | admin | Delete stone (and its uploaded photo) |
 | POST | `/api/images` | admin | Upload a photo (`multipart/form-data`, field `image`); returns `{ url }` |
-| GET | `/api/images/:id` | | Serve an uploaded photo (cached for a year) |
+| GET | `/api/images/:id` | | Serve an uploaded photo (cached for a year); add `?w=800` for the smaller rendition |
 | DELETE | `/api/images/:id` | admin | Delete an unused upload |
 | POST | `/api/quotes` | | Submit quote request |
 | GET | `/api/quotes` | admin | List quotes (newest first) |
@@ -147,6 +160,8 @@ Existing stones can keep using files in `public/images/` via **Use an image path
 | POST | `/api/admin/login` | | Log in |
 | GET | `/api/admin/me` | | Session status |
 | POST | `/api/admin/logout` | | Log out |
+| GET | `/stones/:id` | | Stone detail page (HTML) |
+| GET | `/sitemap.xml`, `/robots.txt` | | Generated for search engines |
 
 ---
 
@@ -206,7 +221,8 @@ Existing stones can keep using files in `public/images/` via **Use an image path
 
 ✅ **Responsive & Fast**
 - Works on desktop, tablet and mobile; fluid typography
-- Self-hosted fonts (~100 KB total) and WebP images; the stone photos load at a third of their original size
+- Self-hosted fonts (~100 KB total), gzip compression, and responsive WebP images (800 px renditions for
+  cards and phones); Lighthouse mobile scores 98 on the home and stone pages
 
 ---
 

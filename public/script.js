@@ -148,7 +148,7 @@ function setupSmoothScroll() {
             event.preventDefault();
             closeMobileMenu();
 
-            if (targetId === "#hero") {
+            if (targetId === "#hero" || targetId === "#main") {
                 window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
             } else {
                 targetElement.scrollIntoView({
@@ -167,7 +167,7 @@ function setupSmoothScroll() {
 
 function initScrollEffects() {
     const header = getElement("site-header");
-    const hero = getElement("hero");
+    const hero = document.querySelector("[data-hero]");
     const progress = getElement("scroll-progress");
     const parallaxItems = reduceMotion ? [] : Array.from(queryElements("[data-parallax]"));
 
@@ -181,10 +181,12 @@ function initScrollEffects() {
         const viewportHeight = window.innerHeight;
 
         if (header) {
-            const heroBottom = hero ? hero.offsetHeight - header.offsetHeight : 0;
+            const heroBottom = hero ? hero.offsetTop + hero.offsetHeight - header.offsetHeight : 0;
             const pastHero = scrollY > heroBottom;
 
+            // Transparent at the very top, dark glass while over the hero, cream past it.
             header.classList.toggle("is-solid", pastHero || !hero);
+            header.classList.toggle("is-scrolled", !pastHero && scrollY > 24);
 
             // Hide while reading downwards, reveal on the way back up.
             const scrollingDown = scrollY > lastScrollY + 4;
@@ -238,7 +240,12 @@ function initActiveNavLinks() {
         return;
     }
 
-    const links = Array.from(queryElements(".nav-links a:not(.nav-cta)"));
+    const links = Array.from(queryElements(".nav-links a:not(.nav-cta)"))
+        .filter(link => link.getAttribute("href").startsWith("#"));
+
+    if (links.length === 0) {
+        return;
+    }
 
     const observer = new IntersectionObserver(
         (entries) => {
@@ -317,7 +324,7 @@ function staggerChildren(container, step = 0.12) {
 }
 
 function initScrollReveal() {
-    [".pillars", ".stats-grid", ".timeline"].forEach(selector => {
+    [".pillars", ".stats-grid", ".timeline", ".related-grid"].forEach(selector => {
         const container = document.querySelector(selector);
 
         if (container) {
@@ -325,7 +332,7 @@ function initScrollReveal() {
         }
     });
 
-    observeReveal(Array.from(queryElements(".reveal")));
+    observeReveal(Array.from(queryElements(".reveal, .related-grid > .stone-card")));
 
     // Draw the logistics timeline line when it comes into view.
     const timeline = document.querySelector(".timeline");
@@ -590,13 +597,24 @@ function initFormValidation() {
    STONE DISPLAY
    ======================================== */
 
-// Stones without an uploaded photo use the bundled, web-optimized image for their id.
+// Card widths: full width minus page margins on phones, half on tablets, a third on desktop.
+const CARD_IMAGE_SIZES = "(max-width: 640px) calc(100vw - 40px), (max-width: 1100px) calc(50vw - 40px), 30vw";
+const WIDE_CARD_IMAGE_SIZES = "(max-width: 640px) calc(100vw - 40px), (max-width: 1100px) calc(50vw - 40px), 62vw";
+const DIALOG_IMAGE_SIZES = "(max-width: 900px) 100vw, 55vw";
+
+// The API resolves each stone's display photo (imageSrc) and smaller renditions (imageSrcset).
 function stoneImageSource(stone) {
-    return stone.image || `images/${stone.id}.webp`;
+    return stone.imageSrc || stone.image || `/images/${stone.id}.webp`;
 }
 
-function createStoneImage(stone, loading = "lazy") {
+function createStoneImage(stone, { loading = "lazy", sizes = CARD_IMAGE_SIZES } = {}) {
     const image = document.createElement("img");
+
+    if (stone.imageSrcset) {
+        image.srcset = stone.imageSrcset;
+        image.sizes = sizes;
+    }
+
     image.src = stoneImageSource(stone);
     image.alt = `${stone.name} granite`;
     image.loading = loading;
@@ -604,12 +622,17 @@ function createStoneImage(stone, loading = "lazy") {
     image.addEventListener(
         "error",
         () => {
-            image.src = "images/logo.webp";
+            image.removeAttribute("srcset");
+            image.src = "/images/logo.webp";
         },
         { once: true }
     );
 
     return image;
+}
+
+function stonePageUrl(stone) {
+    return `/stones/${encodeURIComponent(stone.id)}`;
 }
 
 function stoneMetaLine(stone) {
@@ -638,8 +661,8 @@ function createStoneCard(stone) {
     });
 
     const title = createElement("h3", { className: "stone-card-title" });
-    const link = createElement("button", { className: "stone-card-link", text: stone.name });
-    link.type = "button";
+    const link = createElement("a", { className: "stone-card-link", text: stone.name });
+    link.href = stonePageUrl(stone);
     link.dataset.stone = stone.id;
     title.appendChild(link);
 
@@ -705,7 +728,7 @@ function openStoneDialog(stone) {
     const detail = createElement("div", { className: "stone-detail" });
 
     const media = createElement("div", { className: "stone-detail-media" });
-    media.append(createStoneImage(stone, "eager"));
+    media.append(createStoneImage(stone, { loading: "eager", sizes: DIALOG_IMAGE_SIZES }));
 
     const info = createElement("div", { className: "stone-detail-info" });
 
@@ -781,6 +804,14 @@ function openStoneDialog(stone) {
             text: "This stone is currently unavailable. Please check back soon."
         }));
     }
+
+    const detailsLink = createElement("a", {
+        className: "stone-details-link",
+        text: "View full details"
+    });
+    detailsLink.href = stonePageUrl(stone);
+    detailsLink.appendChild(createArrowIcon());
+    actions.append(detailsLink);
 
     info.append(availability, eyebrow, title, description, specs, actions);
     detail.append(media, info);
@@ -961,6 +992,10 @@ function generateStoneCollection(stoneList) {
         card.classList.toggle("wide-3", wideOnThree.has(index));
         card.classList.toggle("wide-2", wideOnTwo.has(index));
 
+        if (wideOnThree.has(index) || wideOnTwo.has(index)) {
+            card.querySelector("img")?.setAttribute("sizes", WIDE_CARD_IMAGE_SIZES);
+        }
+
         return card;
     });
 
@@ -984,20 +1019,36 @@ function initStoneCollection() {
         return;
     }
 
-    // One delegated listener handles every card.
+    // One delegated listener opens the quick-view dialog for every card. Modified clicks
+    // (new tab, new window) fall through to the card's link to its full page.
     collectionGrid.addEventListener("click", (event) => {
-        const trigger = event.target.closest(".stone-card")?.querySelector("[data-stone]");
-
-        if (!trigger) {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
             return;
         }
 
-        const stone = stones[trigger.dataset.stone];
+        const trigger = event.target.closest(".stone-card")?.querySelector("[data-stone]");
+        const stone = trigger ? stones[trigger.dataset.stone] : null;
 
         if (stone) {
+            event.preventDefault();
             openStoneDialog(stone);
         }
     });
+}
+
+// Links such as /?stone=black-galaxy#contact arrive with a stone chosen for the quote form.
+function applyRequestedStone() {
+    const requested = new URLSearchParams(window.location.search).get("stone");
+    const stoneSelect = getElement("stone");
+
+    if (requested && stoneSelect && stones[requested] && stones[requested].inStock !== false) {
+        stoneSelect.value = requested;
+    }
+
+    // The collection above the form just rendered, so re-align any #anchor target.
+    if (window.location.hash.length > 1) {
+        document.querySelector(window.location.hash)?.scrollIntoView({ block: "start" });
+    }
 }
 
 async function loadStonesAsync() {
@@ -1027,6 +1078,7 @@ async function loadStonesAsync() {
         populateStoneSelect(stoneList);
         generateStoneCollection(stoneList);
         renderStoneMarquee(stoneList);
+        applyRequestedStone();
 
         return stoneList;
     } catch (error) {
@@ -1065,5 +1117,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initFormValidation();
     initStoneDialog();
     initStoneCollection();
-    loadStonesAsync();
+
+    if (getElement("collection-grid") || getElement("stone")) {
+        loadStonesAsync();
+    }
 });
