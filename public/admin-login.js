@@ -22,7 +22,7 @@ loginForm.addEventListener("submit", async (event) => {
             })
         });
 
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
             loginError.textContent = data.error || "Login failed.";

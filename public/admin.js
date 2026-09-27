@@ -23,12 +23,46 @@ async function checkAdminAuthentication() {
         return false;
     }
 }
+
 let quotes = [];
 let stones = [];
 let editingStoneId = null;
 
+const QUOTE_STATUSES = [
+    { value: "new", label: "New" },
+    { value: "in-progress", label: "In Progress" },
+    { value: "quoted", label: "Quoted" },
+    { value: "completed", label: "Completed" },
+    { value: "cancelled", label: "Cancelled" }
+];
+
 function getElement(id) {
     return document.getElementById(id);
+}
+
+function redirectToLogin() {
+    window.location.href = "/admin-login.html";
+}
+
+// Parses a JSON response body, tolerating empty or non-JSON bodies.
+async function readJson(response) {
+    try {
+        return await response.json();
+    } catch {
+        return {};
+    }
+}
+
+function getStatusLabel(status) {
+    const match = QUOTE_STATUSES.find((item) => item.value === status);
+
+    return match ? match.label : status;
+}
+
+function getCurrentStatusFilter() {
+    const filter = getElement("quote-status-filter");
+
+    return filter ? filter.value : "all";
 }
 
 function formatQuoteDate(createdAt) {
@@ -74,36 +108,30 @@ function createQuoteCard(quote) {
     const statusContainer = document.createElement("div");
     statusContainer.className = "quote-status-control";
 
+    const statusSelectId = `quote-status-${quote._id}`;
+
     const statusLabel = document.createElement("label");
     statusLabel.textContent = "Status";
+    statusLabel.htmlFor = statusSelectId;
 
     const statusSelect = document.createElement("select");
     statusSelect.className = "quote-status-select";
+    statusSelect.id = statusSelectId;
     const reference = document.createElement("p");
-reference.textContent = `Reference: ${quote.reference || "N/A"}`;
+    reference.textContent = `Reference: ${quote.reference || "N/A"}`;
 
-const stone = document.createElement("p");
-stone.textContent = `Stone: ${quote.stoneName || "N/A"}`;
+    const stone = document.createElement("p");
+    stone.textContent = `Stone: ${quote.stoneName || "N/A"}`;
 
-const quantity = document.createElement("p");
-quantity.textContent = `Quantity: ${quote.quantity || "Not specified"}`;
-
-    const statuses = [
-        { value: "new", label: "New" },
-        { value: "in-progress", label: "In Progress" },
-        { value: "quoted", label: "Quoted" },
-        { value: "completed", label: "Completed" },
-        { value: "cancelled", label: "Cancelled" }
-    ];
+    const quantity = document.createElement("p");
+    quantity.textContent = `Quantity: ${quote.quantity || "Not specified"}`;
 
     const currentStatus = quote.status || "new";
     const statusBadge = document.createElement("span");
-statusBadge.className = `quote-status-badge status-${currentStatus}`;
-statusBadge.textContent = currentStatus
-    .replace("-", " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+    statusBadge.className = `quote-status-badge status-${currentStatus}`;
+    statusBadge.textContent = getStatusLabel(currentStatus);
 
-    statuses.forEach((status) => {
+    QUOTE_STATUSES.forEach((status) => {
         const option = document.createElement("option");
 
         option.value = status.value;
@@ -137,19 +165,20 @@ statusBadge.textContent = currentStatus
         loadQuoteDetailAsync(button.dataset.quoteId);
     });
 
-   article.append(
-    heading,
-    email,
-    reference,
-    stone,
-    quantity,
-    statusContainer,
-    statusBadge,
-    button
-);
+    article.append(
+        heading,
+        email,
+        reference,
+        stone,
+        quantity,
+        statusContainer,
+        statusBadge,
+        button
+    );
 
-return article;
+    return article;
 }
+
 async function updateQuoteStatus(quoteId, status, selectElement) {
     const previousStatus = selectElement.dataset.previousStatus || "new";
 
@@ -168,12 +197,12 @@ async function updateQuoteStatus(quoteId, status, selectElement) {
             }
         );
 
-        const data = await response.json();
-
         if (response.status === 401) {
-            window.location.href = "/admin-login.html";
+            redirectToLogin();
             return;
         }
+
+        const data = await readJson(response);
 
         if (!response.ok) {
             throw new Error(data.error || "Failed to update quote status");
@@ -184,11 +213,15 @@ async function updateQuoteStatus(quoteId, status, selectElement) {
         );
 
         if (quote) {
-    quote.status = status;
-    renderQuoteSummary();
-}
+            quote.status = status;
+            quote.updatedAt = data.quote?.updatedAt || quote.updatedAt;
+        }
 
-selectElement.dataset.previousStatus = status;
+        selectElement.dataset.previousStatus = status;
+
+        renderQuoteSummary();
+        // Re-render so the badge and the active status filter reflect the change.
+        filterQuotesByStatus(getCurrentStatusFilter());
 
     } catch (error) {
         console.error("Unable to update quote status:", error);
@@ -224,17 +257,18 @@ function displayQuoteDetail(quote) {
     heading.textContent = quote.name || "Unnamed request";
     const details = document.createElement("dl");
     appendQuoteField(details, "Reference", quote.reference);
-appendQuoteField(details, "Stone", quote.stoneName);
-appendQuoteField(details, "Quantity", quote.quantity);
-appendQuoteField(details, "Email", quote.email);
-appendQuoteField(details, "Company", quote.company);
-appendQuoteField(details, "Phone", quote.phone);
-appendQuoteField(details, "Message", quote.message);
-appendQuoteField(details, "Status", quote.status || "new");
-appendQuoteField(details, "Submitted", formatQuoteDate(quote.createdAt));
-appendQuoteField(details, "Last Updated", formatQuoteDate(quote.updatedAt));
+    appendQuoteField(details, "Stone", quote.stoneName);
+    appendQuoteField(details, "Quantity", quote.quantity);
+    appendQuoteField(details, "Email", quote.email);
+    appendQuoteField(details, "Company", quote.company);
+    appendQuoteField(details, "Phone", quote.phone);
+    appendQuoteField(details, "Message", quote.message);
+    appendQuoteField(details, "Status", getStatusLabel(quote.status || "new"));
+    appendQuoteField(details, "Submitted", formatQuoteDate(quote.createdAt));
+    appendQuoteField(details, "Last Updated", formatQuoteDate(quote.updatedAt));
     quoteDetail.append(heading, details);
 }
+
 function renderQuoteSummary() {
     const summary = document.getElementById("quote-summary");
 
@@ -255,7 +289,7 @@ function renderQuoteSummary() {
         }
     });
 
-    summary.innerHTML = "";
+    summary.replaceChildren();
 
     const summaryItems = [
         ["All", counts.all],
@@ -280,6 +314,7 @@ function renderQuoteSummary() {
         summary.appendChild(item);
     });
 }
+
 function filterQuotesByStatus(status) {
     if (status === "all") {
         displayQuotes(quotes);
@@ -297,11 +332,20 @@ function filterQuotesByStatus(status) {
 
     displayQuotes(filteredQuotes);
 }
+
 async function loadQuotesAsync() {
     renderQuoteMessage("Loading quote requests...");
 
     try {
-        const response = await fetch("/api/quotes");
+        const response = await fetch("/api/quotes", {
+            credentials: "include"
+        });
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return;
+        }
+
         if (!response.ok) {
             throw new Error(`Quote API request failed with status ${response.status}`);
         }
@@ -312,13 +356,14 @@ async function loadQuotesAsync() {
         }
 
         quotes = payload;
+        renderQuoteSummary();
+
         if (quotes.length === 0) {
             renderQuoteMessage("No quote requests have been submitted yet.");
             return;
         }
 
-        displayQuotes(quotes);
-        renderQuoteSummary();
+        filterQuotesByStatus(getCurrentStatusFilter());
     } catch (error) {
         console.error("Unable to load quotes from API:", error);
         quotes = [];
@@ -330,7 +375,14 @@ async function loadQuoteDetailAsync(quoteId) {
     renderQuoteDetailMessage("Loading quote request...", "Retrieving quote details.");
 
     try {
-        const response = await fetch(`/api/quotes/${encodeURIComponent(quoteId)}`);
+        const response = await fetch(`/api/quotes/${encodeURIComponent(quoteId)}`, {
+            credentials: "include"
+        });
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return;
+        }
 
         if (response.status === 400) {
             renderQuoteDetailMessage("Invalid quote request", "The selected quote request has an invalid ID.");
@@ -389,9 +441,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 throw new Error(`Logout failed with status ${response.status}`);
             }
 
-            window.location.href = "/admin-login.html";
+            redirectToLogin();
         } catch (error) {
             console.error("Logout failed:", error);
+            alert("Unable to log out. Please try again.");
         }
     });
 });
@@ -496,6 +549,7 @@ function createStoneCard(stone) {
 
     return card;
 }
+
 async function handleDeleteStone(stoneId) {
     const confirmed = window.confirm(
         "Are you sure you want to delete this stone?"
@@ -515,11 +569,11 @@ async function handleDeleteStone(stoneId) {
         );
 
         if (response.status === 401) {
-            window.location.href = "/admin-login.html";
+            redirectToLogin();
             return;
         }
 
-        const data = await response.json();
+        const data = await readJson(response);
 
         if (!response.ok) {
             throw new Error(
@@ -557,10 +611,13 @@ function renderStoneList() {
         stoneList.appendChild(createStoneCard(stone));
     });
 }
+
 async function loadStonesAsync() {
     const stoneList = document.getElementById("stone-list");
 
-    stoneList.innerHTML = "<p>Loading stones...</p>";
+    const loading = document.createElement("p");
+    loading.textContent = "Loading stones...";
+    stoneList.replaceChildren(loading);
 
     try {
         const response = await fetch("/api/stones", {
@@ -568,7 +625,7 @@ async function loadStonesAsync() {
         });
 
         if (response.status === 401) {
-            window.location.href = "/admin-login.html";
+            redirectToLogin();
             return;
         }
 
@@ -597,6 +654,7 @@ async function loadStonesAsync() {
         );
     }
 }
+
 async function handleStoneSubmit(event) {
     event.preventDefault();
 
@@ -641,11 +699,11 @@ async function handleStoneSubmit(event) {
         });
 
         if (response.status === 401) {
-            window.location.href = "/admin-login.html";
+            redirectToLogin();
             return;
         }
 
-        const data = await response.json();
+        const data = await readJson(response);
 
         if (!response.ok) {
             throw new Error(
