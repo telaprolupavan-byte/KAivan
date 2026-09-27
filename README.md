@@ -40,7 +40,9 @@ kaivan/
 │   ├── admin.js            # Stone CRUD + quote management
 │   ├── 404.html
 │   ├── robots.txt
-│   └── images/
+│   ├── favicon-32.png / apple-touch-icon.png   # "K" monogram from the logo
+│   ├── fonts/              # Cormorant Garamond + Jost, self-hosted (SIL Open Font License)
+│   └── images/             # Original JPGs + web-optimized WebP copies (npm run optimize-images)
 ├── server/
 │   ├── server.js           # Entry point: config, MongoDB, sessions, graceful shutdown
 │   ├── app.js              # Express app: routes, security middleware, error handling
@@ -78,6 +80,7 @@ npm start                                  # http://localhost:3000
 | `npm run seed` | Insert missing seed stones (existing stones are left untouched) |
 | `npm run seed -- --reset` | Delete **all** stones and re-seed |
 | `npm run hash-password -- "<pw>"` | Generate a bcrypt hash for `ADMIN_PASSWORD_HASH` |
+| `npm run optimize-images` | Regenerate the WebP images the website uses after replacing a bundled photo |
 
 ### Environment variables
 
@@ -175,16 +178,20 @@ Existing stones can keep using files in `public/images/` via **Use an image path
 
 ## 🛠️ Current Features
 
-✅ **Navigation**
-- Hamburger menu for mobile
-- Smooth scroll to page sections
-- Auto-close menu after clicking link
+✅ **Landing Page**
+- Full-screen Black Galaxy hero with a slow cinematic zoom, parallax and line-by-line headline reveal
+- Editorial typography: Cormorant Garamond (echoing the logo's serif) with Jost, gold accents from the logo
+- Transparent header that turns solid past the hero, hides while scrolling down, and shows a gold progress line
+- Full-screen mobile menu; scrolling marquee of stone names; count-up statistics; animated logistics timeline
+- Scroll-reveal animations, all disabled automatically for visitors who prefer reduced motion
+- WCAG AA text contrast throughout; keyboard and screen-reader friendly
 
 ✅ **Stone Collection**
 - Stones loaded from the API with loading placeholders
+- Editorial grid: wide feature cards are placed automatically so every row is full, whatever the stone count
 - Click a stone to open its details (price, origin, size, rating, certifications) in a pop-up
 - "Request a Quote" from the pop-up pre-selects the stone in the quote form
-- Responsive grid (3 columns → 2 on tablet → 1 on mobile), hover animations
+- Responsive grid (3 columns → 2 on tablet → 1 on mobile) with a gold-frame hover effect
 
 ✅ **Admin Dashboard**
 - Add, edit and delete stones, with photo upload (drag & drop, live preview, progress)
@@ -197,10 +204,9 @@ Existing stones can keep using files in `public/images/` via **Use an image path
 - Clear error messages (red) and success confirmation (green)
 - Form resets after successful submission
 
-✅ **Responsive Design**
-- Works on desktop (1920px+), tablet (768px-1024px), mobile (<768px)
-- Flexible typography scaling
-- Touch-friendly buttons and spacing
+✅ **Responsive & Fast**
+- Works on desktop, tablet and mobile; fluid typography
+- Self-hosted fonts (~100 KB total) and WebP images; the stone photos load at a third of their original size
 
 ---
 
@@ -265,7 +271,8 @@ quoteForm.addEventListener("submit", function (event) {
 
 **Images not loading?**
 - Uploaded photos are served from `/api/images/<id>`; bundled images live in `public/images/`
-- A stone without an `image` value uses `images/<stone-id>.jpg`
+- A stone without an `image` value uses `images/<stone-id>.webp` on the website (`.jpg` in the admin
+  dashboard). After replacing a bundled photo, run `npm run optimize-images`
 
 **Photo upload fails?**
 - iPhone HEIC photos: pick the photo through the file picker (iOS converts it to JPEG automatically)

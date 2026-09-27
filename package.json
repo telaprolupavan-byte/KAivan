@@ -9,7 +9,8 @@
     "dev": "node --watch server/server.js",
     "seed": "node server/migrate-stones.js",
     "hash-password": "node scripts/hash-password.js",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "optimize-images": "node scripts/optimize-images.js"
   },
   "engines": {
     "node": ">=20.9"

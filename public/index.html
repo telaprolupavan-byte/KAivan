@@ -3,10 +3,23 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Kaivan Stone supplies premium granite and natural stone from our quarries in India to projects in the USA.">
-    <meta name="theme-color" content="#f5f1e8">
-    <title>Kaivan Stone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Kaivan Stone — Premium Natural Stone from India</title>
+    <meta name="description" content="Kaivan Stone supplies premium granite and natural stone from our family-owned quarries in India to projects in the USA.">
+    <meta name="theme-color" content="#121211">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Kaivan Stone">
+    <meta property="og:title" content="Kaivan Stone — Earth to Excellence">
+    <meta property="og:description" content="Premium granite and natural stone from our quarries in India to your projects in the USA.">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <link rel="preload" href="/fonts/cormorant-garamond-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/cormorant-garamond-latin-wght-italic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jost-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -14,79 +27,144 @@
 
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <header class="site-header">
+    <header class="site-header" id="site-header">
 
-        <nav aria-label="Main">
+        <nav class="nav" aria-label="Main">
 
-            <a class="brand" href="#hero">Kaivan Stone</a>
+            <a class="brand" href="#hero" aria-label="Kaivan Stone, back to top">
+                <span class="brand-name">Kaivan</span>
+                <span class="brand-sub">Stone</span>
+            </a>
 
             <div class="nav-links" id="nav-links">
-                <a href="#collection">Collection</a>
-                <a href="#about">About</a>
-                <a href="#logistics">Logistics</a>
-                <a href="#contact">Contact</a>
+                <a href="#collection"><span class="nav-index" aria-hidden="true">01</span>Collection</a>
+                <a href="#about"><span class="nav-index" aria-hidden="true">02</span>About</a>
+                <a href="#logistics"><span class="nav-index" aria-hidden="true">03</span>Logistics</a>
+                <a href="#contact"><span class="nav-index" aria-hidden="true">04</span>Contact</a>
                 <a class="nav-cta" href="#contact">Request a Quote</a>
             </div>
 
-            <button id="menu-button" type="button" aria-label="Toggle navigation menu" aria-controls="nav-links" aria-expanded="false">
+            <button id="menu-button" type="button" aria-label="Open menu" aria-controls="nav-links" aria-expanded="false">
                 <span class="menu-icon" aria-hidden="true"></span>
             </button>
 
         </nav>
 
+        <span class="scroll-progress" id="scroll-progress" aria-hidden="true"></span>
+
     </header>
 
     <main id="main">
 
-        <section id="hero">
+        <!-- =========================
+             HERO
+        ========================== -->
+
+        <section id="hero" aria-labelledby="hero-title">
+
+            <img
+                class="hero-media"
+                src="images/hero-stone.webp"
+                srcset="images/hero-stone-960.webp 960w, images/hero-stone.webp 1536w"
+                sizes="100vw"
+                alt=""
+                fetchpriority="high"
+                data-parallax="0.18">
+
+            <div class="hero-overlay" aria-hidden="true"></div>
 
             <div class="hero-content">
 
-                <p class="eyebrow">Natural Stone · Quarried in India</p>
+                <p class="eyebrow eyebrow-light hero-eyebrow">Natural Stone · Quarried in India</p>
 
-                <h1>Earth to Excellence.</h1>
+                <h1 class="hero-title" id="hero-title">
+                    <span class="line"><span>Earth to</span></span>
+                    <span class="line"><span><em>Excellence.</em></span></span>
+                </h1>
 
                 <p class="hero-lead">
                     From Our Quarries in India to Your Projects in the USA
                 </p>
 
                 <div class="hero-actions">
-                    <a class="button button-primary" href="#collection">Explore Collection</a>
-                    <a class="button button-outline" href="#contact">Request a Quote</a>
+                    <a class="button button-gold" href="#collection">
+                        Explore the Collection
+                        <svg class="icon-arrow" viewBox="0 0 26 12" aria-hidden="true"><path d="M0 6h24M19 1l5 5-5 5"/></svg>
+                    </a>
+                    <a class="button button-ghost-light" href="#contact">Request a Quote</a>
                 </div>
 
             </div>
 
-            <div class="hero-logo">
-                <img src="images/hero.jpg" alt="Kaivan Stone — From Earth to Excellence" width="1536" height="1024">
+            <div class="hero-footer">
+                <a class="scroll-cue" href="#collection">
+                    <span class="scroll-cue-line" aria-hidden="true"></span>
+                    Scroll to Discover
+                </a>
+
+                <ul class="hero-facts">
+                    <li>3 Family-Owned Quarries</li>
+                    <li>Granite &amp; Marble Slabs</li>
+                    <li>Export-Ready Packing</li>
+                </ul>
             </div>
 
         </section>
 
-        <section id="collection">
+        <!-- Stone names, filled in from /api/stones -->
+        <div class="marquee" id="stone-marquee" aria-hidden="true" hidden>
+            <div class="marquee-track" id="stone-marquee-track"></div>
+        </div>
 
-            <div class="section-heading">
-                <p>Our Collection</p>
-                <h2>Our Stone Collection</h2>
-                <p>Premium natural stone sourced from our quarries in India.</p>
+        <!-- =========================
+             COLLECTION
+        ========================== -->
+
+        <section id="collection" aria-labelledby="collection-title">
+
+            <div class="section-head reveal">
+                <div>
+                    <p class="eyebrow">The Collection</p>
+                    <h2 id="collection-title">Our Stone <em>Collection</em></h2>
+                    <p class="section-lead">Premium natural stone sourced from our quarries in India.</p>
+                </div>
+
+                <p class="section-count" id="stone-count" aria-live="polite"></p>
             </div>
 
             <!-- Stone cards are generated by script.js from /api/stones -->
-            <div class="collection-grid" id="collection-grid" aria-live="polite"></div>
+            <div class="collection-grid" id="collection-grid">
+                <noscript>
+                    <p class="collection-status">Please enable JavaScript to browse our stone collection.</p>
+                </noscript>
+            </div>
 
         </section>
 
-        <section id="about">
+        <!-- =========================
+             ABOUT
+        ========================== -->
 
-            <div class="section-heading">
-                <p>Complete Control</p>
-                <h2>From Quarry to Global Supply</h2>
-                <p>Consistent Quality. Reliable Global Supply.</p>
+        <section id="about" aria-labelledby="about-title">
+
+            <div class="about-layout">
+
+                <figure class="brand-plaque reveal">
+                    <img src="images/logo.webp" alt="Kaivan Stone — From Earth to Excellence" width="1200" height="800" loading="lazy">
+                </figure>
+
+                <div class="about-intro reveal">
+                    <p class="eyebrow">Complete Control</p>
+                    <h2 id="about-title">From Quarry to <em>Global Supply</em></h2>
+                    <p class="about-statement">Consistent Quality. Reliable Global Supply.</p>
+                </div>
+
             </div>
 
-            <div class="about-grid">
+            <div class="pillars">
 
-                <article>
+                <article class="pillar reveal">
+                    <span class="pillar-numeral" aria-hidden="true">I</span>
                     <h3>Quarry Operations</h3>
                     <p>
                         3 family-owned quarries in India with direct access
@@ -94,7 +172,8 @@
                     </p>
                 </article>
 
-                <article>
+                <article class="pillar reveal">
+                    <span class="pillar-numeral" aria-hidden="true">II</span>
                     <h3>Large Inventory</h3>
                     <p>
                         Extensive stock of premium granite and marble slabs
@@ -102,7 +181,8 @@
                     </p>
                 </article>
 
-                <article>
+                <article class="pillar reveal">
+                    <span class="pillar-numeral" aria-hidden="true">III</span>
                     <h3>Advanced Processing</h3>
                     <p>
                         In-house manufacturing supported by advanced
@@ -114,70 +194,93 @@
 
         </section>
 
-        <section id="logistics">
+        <!-- =========================
+             STATS
+        ========================== -->
 
-            <div class="section-heading">
-                <p>Supply &amp; Logistics</p>
-                <h2>Reliable Global Supply</h2>
+        <section id="stats" aria-label="Kaivan Stone in numbers">
+
+            <img class="stats-media" src="images/band-stone.webp" alt="" loading="lazy" data-parallax="0.12">
+            <div class="stats-overlay" aria-hidden="true"></div>
+
+            <p class="eyebrow eyebrow-light reveal">By the Numbers</p>
+
+            <div class="stats-grid">
+
+                <div class="stat reveal">
+                    <strong><span data-count="500">500</span><sup>+</sup></strong>
+                    <span>Containers Shipped</span>
+                </div>
+
+                <div class="stat reveal">
+                    <strong><span data-count="200">200</span><sup>+</sup></strong>
+                    <span>Clients</span>
+                </div>
+
+                <div class="stat reveal">
+                    <strong><span data-count="25">25</span><sup>+</sup></strong>
+                    <span>Countries Served</span>
+                </div>
+
             </div>
 
-            <div class="logistics-grid">
+        </section>
 
-                <article>
+        <!-- =========================
+             LOGISTICS
+        ========================== -->
+
+        <section id="logistics" aria-labelledby="logistics-title">
+
+            <div class="section-head reveal">
+                <div>
+                    <p class="eyebrow">Supply &amp; Logistics</p>
+                    <h2 id="logistics-title">Reliable <em>Global Supply</em></h2>
+                </div>
+            </div>
+
+            <ol class="timeline">
+
+                <li class="timeline-step reveal">
                     <span class="step-number">01</span>
                     <h3>Secure Packing</h3>
                     <p>
                         Export-ready packing designed to protect every shipment.
                     </p>
-                </article>
+                </li>
 
-                <article>
+                <li class="timeline-step reveal">
                     <span class="step-number">02</span>
                     <h3>Efficient Logistics</h3>
                     <p>
                         Coordinated movement from source to destination.
                     </p>
-                </article>
+                </li>
 
-                <article>
+                <li class="timeline-step reveal">
                     <span class="step-number">03</span>
                     <h3>Reliable Delivery</h3>
                     <p>
                         Dependable global delivery and supply operations.
                     </p>
-                </article>
+                </li>
 
-            </div>
-
-        </section>
-
-        <section id="stats" aria-label="Kaivan Stone in numbers">
-
-            <div class="stat">
-                <strong>500+</strong>
-                <span>Containers Shipped</span>
-            </div>
-
-            <div class="stat">
-                <strong>200+</strong>
-                <span>Clients</span>
-            </div>
-
-            <div class="stat">
-                <strong>25+</strong>
-                <span>Countries Served</span>
-            </div>
+            </ol>
 
         </section>
 
-        <section id="contact">
+        <!-- =========================
+             CONTACT
+        ========================== -->
 
-            <div class="contact-intro">
-                <p class="eyebrow">Request a Quote</p>
+        <section id="contact" aria-labelledby="contact-title">
 
-                <h2>Let's Work Together.</h2>
+            <div class="contact-intro reveal">
+                <p class="eyebrow eyebrow-light">Request a Quote</p>
 
-                <p>
+                <h2 id="contact-title">Let's Work <em>Together.</em></h2>
+
+                <p class="contact-lead">
                     Tell us about your project and we'll get back to you with a quote.
                 </p>
 
@@ -188,7 +291,7 @@
                 </ul>
             </div>
 
-            <div class="contact-form-wrap">
+            <div class="contact-form-wrap reveal">
 
                 <form id="quote-form" method="post" action="/api/quotes" novalidate>
 
@@ -263,14 +366,14 @@
                             id="message"
                             name="message"
                             maxlength="5000"
-                            rows="6"
+                            rows="5"
                             placeholder="Tell us about your project, finish, dimensions, delivery location, or anything else we should know."
                             required
                         ></textarea>
                     </div>
 
                     <div class="form-footer">
-                        <button id="quote-submit" type="submit">
+                        <button id="quote-submit" class="button button-gold" type="submit">
                             Request a Quote
                         </button>
 
@@ -287,27 +390,51 @@
 
     </main>
 
-    <footer>
+    <!-- =========================
+         FOOTER
+    ========================== -->
 
-        <div class="footer-brand">
-            <h2>Kaivan Stone</h2>
-            <p>Earth to Excellence.</p>
+    <footer class="site-footer">
+
+        <div class="footer-top">
+
+            <div class="footer-brand">
+                <p class="footer-tagline">Earth to <em>Excellence.</em></p>
+                <p>Premium natural stone sourced from our quarries in India.</p>
+            </div>
+
+            <nav class="footer-links" aria-label="Footer">
+                <p class="footer-heading">Explore</p>
+                <a href="#collection">Collection</a>
+                <a href="#about">About</a>
+                <a href="#logistics">Logistics</a>
+                <a href="#contact">Contact</a>
+            </nav>
+
+            <div class="footer-cta">
+                <p class="footer-heading">Start a Project</p>
+                <a class="button button-ghost-light" href="#contact">Request a Quote</a>
+            </div>
+
         </div>
 
-        <nav class="footer-links" aria-label="Footer">
-            <a href="#collection">Collection</a>
-            <a href="#about">About</a>
-            <a href="#logistics">Logistics</a>
-            <a href="#contact">Contact</a>
-        </nav>
+        <p class="footer-wordmark" aria-hidden="true">
+            <span class="footer-wordmark-name">Kaivan</span>
+            <span class="footer-wordmark-sub">Stone</span>
+        </p>
 
-        <p class="footer-copy">&copy; <span id="current-year">2026</span> Kaivan Stone. All rights reserved.</p>
+        <div class="footer-bottom">
+            <p>&copy; <span id="current-year">2026</span> Kaivan Stone. All rights reserved.</p>
+            <a href="#hero" class="back-to-top">Back to top</a>
+        </div>
 
     </footer>
 
     <dialog id="stone-dialog" aria-labelledby="stone-dialog-title">
         <div class="stone-dialog-body" id="stone-dialog-body"></div>
-        <button type="button" class="dialog-close" id="stone-dialog-close" aria-label="Close">&times;</button>
+        <button type="button" class="dialog-close" id="stone-dialog-close" aria-label="Close">
+            <span aria-hidden="true"></span>
+        </button>
     </dialog>
 
     <script src="script.js"></script>
